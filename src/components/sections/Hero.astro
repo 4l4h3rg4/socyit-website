@@ -1,0 +1,210 @@
+---
+// Hero.astro — Sección principal con glitch, typewriter y logo flotando
+---
+
+<section id="hero" class="hero scanlines">
+  <div class="container hero__inner">
+
+    <!-- Columna izquierda: texto -->
+    <div class="hero__content">
+      <span class="badge reveal">COMUNIDAD TECH · EST. 2025</span>
+
+      <h1
+        class="hero__title glitch reveal"
+        data-text="SocyIT"
+        style="animation-delay: 0.1s"
+      >
+        SocyIT
+      </h1>
+
+      <div class="hero__typewriter reveal" style="animation-delay: 0.2s">
+        <span id="typewriter-text"></span><span class="typewriter-cursor">▋</span>
+      </div>
+
+      <div class="hero__ctas reveal" style="animation-delay: 0.4s">
+        <a href="#unete" class="pixel-btn">
+          &gt; Únete ahora
+        </a>
+        <a href="#sobre-nosotros" class="pixel-btn pixel-btn--ghost">
+          &gt; Explorar
+        </a>
+      </div>
+
+      <p class="hero__lema reveal cursor" style="animation-delay: 0.5s">
+        <span class="hero__lema-text">$ despegando juntos hacia el futuro_</span>
+      </p>
+    </div>
+
+    <!-- Columna derecha: logo -->
+    <div class="hero__logo-wrap reveal" style="animation-delay: 0.3s">
+      <div class="hero__logo-glow"></div>
+      <img
+        src="/logo.svg"
+        alt="Logo SocyIT"
+        class="hero__logo animate-float"
+        width="280"
+        height="280"
+      />
+    </div>
+
+  </div>
+
+</section>
+
+<script>
+  // ---- TYPEWRITER SECUENCIAL ----
+  const phrases = [
+    'Conectamos mentes.',
+    'Construimos el futuro.',
+    'Despegamos juntos.',
+  ];
+
+  const el = document.getElementById('typewriter-text')!;
+  let phraseIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+  const TYPING_SPEED   = 80;
+  const DELETING_SPEED = 40;
+  const PAUSE_AFTER    = 2000;
+  const PAUSE_BEFORE   = 400;
+
+  function type() {
+    const current = phrases[phraseIndex];
+
+    if (isDeleting) {
+      el.textContent = current.slice(0, charIndex - 1);
+      charIndex--;
+
+      if (charIndex === 0) {
+        isDeleting = false;
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        setTimeout(type, PAUSE_BEFORE);
+        return;
+      }
+      setTimeout(type, DELETING_SPEED);
+    } else {
+      el.textContent = current.slice(0, charIndex + 1);
+      charIndex++;
+
+      if (charIndex === current.length) {
+        // Pausa al terminar de escribir
+        setTimeout(() => { isDeleting = true; type(); }, PAUSE_AFTER);
+        return;
+      }
+      setTimeout(type, TYPING_SPEED);
+    }
+  }
+
+  // Espera un momento antes de empezar
+  setTimeout(type, 800);
+</script>
+
+<style>
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding-block: 2rem;
+  }
+
+  .hero__inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+    width: min(90%, 1100px);
+    margin-inline: auto;
+  }
+
+  /* ---- Contenido ---- */
+  .hero__content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+
+  .badge {
+    align-self: flex-start;
+  }
+
+  .hero__title {
+    font-family: var(--font-pixel);
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    line-height: 1.1;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  /* ---- Typewriter ---- */
+  .hero__typewriter {
+    font-family: var(--font-mono);
+    font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+    color: var(--text-muted);
+    min-height: 2rem;
+  }
+
+  .typewriter-cursor {
+    color: var(--primary);
+    animation: blink 1s step-end infinite;
+  }
+
+  /* ---- CTAs ---- */
+  .hero__ctas {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  /* ---- Lema ---- */
+  .hero__lema {
+    font-family: var(--font-pixel);
+    font-size: 0.45rem;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+
+  /* ---- Logo ---- */
+  .hero__logo-wrap {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .hero__logo-glow {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .hero__logo {
+    position: relative;
+    z-index: 1;
+    max-width: 280px;
+    width: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 20px var(--primary-glow));
+  }
+
+
+  /* ---- Responsive ---- */
+  @media (max-width: 768px) {
+    .hero__inner {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+
+    .hero__logo-wrap { display: none; }
+
+    .badge          { align-self: center; }
+    .hero__ctas     { justify-content: center; }
+    .hero__lema     { text-align: center; }
+  }
+</style>

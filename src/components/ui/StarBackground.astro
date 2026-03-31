@@ -1,0 +1,69 @@
+---
+// StarBackground.astro — Fondo de partículas/estrellas animadas con tsParticles
+---
+
+<div id="tsparticles"></div>
+
+<script>
+  import { tsParticles } from '@tsparticles/engine';
+  import { loadSlim } from '@tsparticles/slim';
+
+  (async () => {
+    await loadSlim(tsParticles);
+
+    await tsParticles.load('tsparticles', {
+      background: { color: { value: '#0A0A0F' } },
+      fpsLimit: 60,
+      interactivity: {
+        events: {
+          onHover: { enable: true, mode: 'repulse' },
+        },
+        modes: {
+          repulse: { distance: 80, duration: 0.4 },
+        },
+      },
+      particles: {
+        color: { value: ['#ffffff', '#a5b4fc', '#6366f1', '#06b6d4'] },
+        links: {
+          enable: true,
+          color: '#1e1e2d',
+          distance: 120,
+          opacity: 0.3,
+          width: 1,
+        },
+        move: {
+          enable: true,
+          speed: 0.4,
+          random: true,
+          outModes: { default: 'out' },
+        },
+        number: {
+          value: 120,
+          density: { enable: true, area: 800 },
+        },
+        opacity: {
+          value: { min: 0.2, max: 0.9 },
+          animation: {
+            enable: true,
+            speed: 0.8,
+            minimumValue: 0.1,
+          },
+        },
+        shape: { type: 'circle' },
+        size: {
+          value: { min: 1, max: 2.5 },
+        },
+      },
+      detectRetina: true,
+    });
+  })();
+</script>
+
+<style>
+  #tsparticles {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+</style>

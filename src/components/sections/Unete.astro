@@ -1,0 +1,169 @@
+---
+// Unete.astro — CTA final con logo flotando y botón de WhatsApp
+
+const whatsappUrl = import.meta.env.PUBLIC_WHATSAPP_URL ?? '#';
+
+const pasos = [
+  'Entra a la comunidad de WhatsApp',
+  'Explora las divisiones que te interesan',
+  'Colabora, aprende y construye proyectos',
+  'Despega con nosotros 🚀',
+];
+---
+
+<section id="unete" class="unete">
+  <!-- Resplandor radial de fondo -->
+  <div class="unete__glow" aria-hidden="true"></div>
+
+  <div class="container unete__inner">
+
+    <!-- Logo flotando -->
+    <div class="unete__logo-wrap reveal">
+      <img
+        src="/logo.svg"
+        alt="Logo SocyIT"
+        class="unete__logo animate-float animate-glow-pulse"
+        width="140"
+        height="140"
+      />
+    </div>
+
+    <!-- Título -->
+    <h2 class="unete__title glow-text reveal">
+      &gt; Únete a la tripulación_
+    </h2>
+
+    <!-- Tarjeta de pasos -->
+    <div class="unete__card reveal">
+      <ol class="unete__steps">
+        {pasos.map((paso, i) => (
+          <li class="unete__step">
+            <span class="unete__step-num">{String(i + 1).padStart(2, '0')}</span>
+            <span class="unete__step-text">{paso}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <!-- Botón WhatsApp -->
+    <a
+      href={whatsappUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="pixel-btn pixel-btn--whatsapp unete__btn reveal"
+      aria-label="Unirse a la comunidad SocyIT por WhatsApp"
+    >
+      &gt; Unirme por WhatsApp_
+    </a>
+
+    <!-- Texto inferior con cursor -->
+    <p class="unete__footer-text reveal cursor">
+      Prepárate para despegar
+    </p>
+
+  </div>
+</section>
+
+<style>
+  .unete {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  /* Resplandor radial de fondo */
+  .unete__glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--primary-glow) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .unete__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    max-width: 600px;
+    margin-inline: auto;
+  }
+
+  /* ---- Logo ---- */
+  .unete__logo-wrap {
+    margin-bottom: 0.5rem;
+  }
+
+  .unete__logo {
+    width: 140px;
+    height: 140px;
+    object-fit: contain;
+  }
+
+  /* ---- Título ---- */
+  .unete__title {
+    font-family: var(--font-pixel);
+    font-size: clamp(0.75rem, 3vw, 1.1rem);
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  /* ---- Tarjeta de pasos ---- */
+  .unete__card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-bright);
+    border-top: 3px solid var(--primary);
+    padding: 1.5rem 2rem;
+    width: 100%;
+  }
+
+  .unete__steps {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: left;
+  }
+
+  .unete__step {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .unete__step-num {
+    font-family: var(--font-pixel);
+    font-size: 0.5rem;
+    color: var(--primary);
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+  }
+
+  .unete__step-text {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* ---- Botón ---- */
+  .unete__btn {
+    font-size: 0.6rem !important;
+    padding: 1rem 2rem !important;
+  }
+
+  /* ---- Texto con cursor ---- */
+  .unete__footer-text {
+    font-family: var(--font-pixel);
+    font-size: 0.5rem;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+</style>

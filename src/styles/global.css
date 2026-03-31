@@ -1,0 +1,315 @@
+/* ============================================
+   SOCYIT — GLOBAL CSS
+   Importa NES.css, define variables, reset y utilidades
+   ============================================ */
+
+@import 'nes.css/css/nes.min.css';
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+@import './animations.css';
+
+/* ---- VARIABLES ---- */
+:root {
+  /* Fondos */
+  --bg:              #0A0A0F;
+  --bg-card:         #12121a;
+  --bg-terminal:     #0d0d14;
+  --bg-card-hover:   #16162a;
+
+  /* Marca */
+  --primary:         #6366F1;
+  --primary-dark:    #4f46e5;
+  --primary-glow:    rgba(99, 102, 241, 0.35);
+  --primary-glow-sm: rgba(99, 102, 241, 0.15);
+
+  /* Divisiones */
+  --robotica:        #06b6d4;
+  --robotica-glow:   rgba(6, 182, 212, 0.3);
+  --ciber:           #ef4444;
+  --ciber-glow:      rgba(239, 68, 68, 0.3);
+  --software:        #7c3aed;
+  --software-glow:   rgba(124, 58, 237, 0.3);
+  --videojuegos:     #f59e0b;
+  --videojuegos-glow:rgba(245, 158, 11, 0.3);
+
+  /* Texto */
+  --text:            #e2e8f0;
+  --text-muted:      #94a3b8;
+  --text-dim:        #475569;
+  --text-accent:     #a5b4fc;
+
+  /* Bordes */
+  --border:          #1e1e2d;
+  --border-bright:   #2d2d45;
+
+  /* Tamaños */
+  --navbar-h:        64px;
+  --section-gap:     6rem;
+
+  /* Tipografías */
+  --font-pixel:      'Press Start 2P', monospace;
+  --font-mono:       'Space Mono', monospace;
+}
+
+/* ---- RESET ---- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  line-height: 1.7;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ---- TIPOGRAFÍA ---- */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-pixel);
+  line-height: 1.4;
+  color: var(--text);
+}
+
+p, li, span, label, input, textarea, button {
+  font-family: var(--font-mono);
+}
+
+a {
+  color: var(--text-accent);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--primary);
+}
+
+/* ---- SCROLLBAR PERSONALIZADA ---- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-card);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 3px;
+}
+
+/* ---- OVERRIDES NES.CSS ---- */
+/* NES.css usa fuentes propias; las adaptamos al sistema de diseño */
+.nes-btn {
+  font-family: var(--font-pixel) !important;
+  font-size: 0.6rem !important;
+  cursor: pointer;
+}
+
+.nes-container {
+  background: var(--bg-card) !important;
+  border-color: var(--border-bright) !important;
+}
+
+.nes-container.with-title > .title {
+  font-family: var(--font-pixel) !important;
+  font-size: 0.6rem !important;
+  color: var(--primary) !important;
+  background: var(--bg-card) !important;
+}
+
+/* ---- LAYOUT ---- */
+.container {
+  width: min(90%, 1100px);
+  margin-inline: auto;
+}
+
+section {
+  padding-block: var(--section-gap);
+  position: relative;
+}
+
+/* ---- ETIQUETAS DE SECCIÓN ---- */
+.section-tag {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--primary);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* ---- GLOW UTILITIES ---- */
+.glow-text {
+  text-shadow:
+    0 0 10px var(--primary),
+    0 0 20px var(--primary-glow),
+    0 0 40px var(--primary-glow);
+}
+
+.glow-box {
+  box-shadow:
+    0 0 15px var(--primary-glow),
+    inset 0 0 15px var(--primary-glow-sm);
+}
+
+/* ---- BARRA LATERAL DE COLOR (divisiones) ---- */
+[data-division-color] {
+  --div-color: var(--primary);
+}
+[data-division-color="robotica"]    { --div-color: var(--robotica); }
+[data-division-color="ciber"]       { --div-color: var(--ciber); }
+[data-division-color="software"]    { --div-color: var(--software); }
+[data-division-color="videojuegos"] { --div-color: var(--videojuegos); }
+
+/* ---- CURSOR PARPADEANTE ---- */
+.cursor::after {
+  content: '▋';
+  animation: blink 1s step-end infinite;
+  color: var(--primary);
+}
+
+/* ---- BOTÓN PIXEL PRIMARIO ---- */
+.pixel-btn {
+  display: inline-block;
+  font-family: var(--font-pixel);
+  font-size: 0.55rem;
+  color: var(--bg);
+  background: var(--primary);
+  padding: 0.75rem 1.25rem;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.1s, background 0.2s;
+  /* Sombra pixel art manual */
+  box-shadow:
+    4px 4px 0 0 var(--primary-dark),
+    -2px -2px 0 0 rgba(255,255,255,0.1) inset;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pixel-btn:hover {
+  background: var(--primary-dark);
+  transform: translate(2px, 2px);
+  box-shadow:
+    2px 2px 0 0 var(--primary-dark),
+    -2px -2px 0 0 rgba(255,255,255,0.1) inset;
+  color: var(--bg);
+}
+
+.pixel-btn:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+
+.pixel-btn--ghost {
+  background: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  box-shadow: none;
+}
+
+.pixel-btn--ghost:hover {
+  background: var(--primary-glow-sm);
+  color: var(--text);
+  transform: none;
+}
+
+.pixel-btn--whatsapp {
+  background: #25D366;
+  box-shadow: 4px 4px 0 0 #128C7E;
+}
+
+.pixel-btn--whatsapp:hover {
+  background: #128C7E;
+  box-shadow: 2px 2px 0 0 #075E54;
+}
+
+/* ---- VENTANA TERMINAL ---- */
+.pixel-window {
+  background: var(--bg-terminal);
+  border: 2px solid var(--border-bright);
+  max-width: 768px;
+  margin-inline: auto;
+}
+
+.pixel-window__bar {
+  background: var(--border-bright);
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.pixel-window__dots {
+  display: flex;
+  gap: 6px;
+}
+
+.pixel-window__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 0;
+}
+
+.pixel-window__dot--red   { background: #ef4444; }
+.pixel-window__dot--yellow { background: #f59e0b; }
+.pixel-window__dot--green { background: #22c55e; }
+
+.pixel-window__title {
+  font-family: var(--font-pixel);
+  font-size: 0.5rem;
+  color: var(--text-muted);
+  margin-left: 0.5rem;
+}
+
+.pixel-window__body {
+  padding: 1.5rem;
+}
+
+/* ---- SCANLINES (sección hero) ---- */
+.scanlines::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ---- BADGE ---- */
+.badge {
+  display: inline-block;
+  font-family: var(--font-pixel);
+  font-size: 0.45rem;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  padding: 0.35rem 0.65rem;
+  letter-spacing: 0.1em;
+  background: var(--primary-glow-sm);
+}
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 768px) {
+  :root {
+    --section-gap: 4rem;
+  }
+
+  h1 { font-size: clamp(1.2rem, 6vw, 2rem); }
+  h2 { font-size: clamp(0.9rem, 4vw, 1.4rem); }
+}

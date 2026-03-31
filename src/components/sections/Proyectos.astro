@@ -1,0 +1,288 @@
+---
+// Proyectos.astro — Muestra proyectos reales desde Supabase o estado vacío animado
+import { supabase } from '../../lib/supabase';
+import type { Division } from '../../types';
+
+const { data: proyectos } = await supabase
+  .from('proyectos')
+  .select('*, division:divisiones(nombre, color_hex, icono)')
+  .eq('activo', true)
+  .order('creado_en', { ascending: false })
+  .limit(4);
+
+const lista = proyectos ?? [];
+
+const estadoLabel: Record<string, { label: string; color: string }> = {
+  idea:        { label: '// idea',        color: 'var(--videojuegos)' },
+  en_progreso: { label: '// en progreso', color: 'var(--robotica)' },
+  completado:  { label: '// completado',  color: 'var(--primary)' },
+};
+---
+
+<section id="proyectos" class="proyectos">
+  <div class="container">
+    <div class="proyectos__window-wrap reveal">
+      <div class="pixel-window">
+
+        <!-- Barra superior -->
+        <div class="pixel-window__bar">
+          <div class="pixel-window__dots">
+            <div class="pixel-window__dot pixel-window__dot--red"></div>
+            <div class="pixel-window__dot pixel-window__dot--yellow"></div>
+            <div class="pixel-window__dot pixel-window__dot--green"></div>
+          </div>
+          <span class="pixel-window__title">proyectos.log</span>
+        </div>
+
+        <!-- Cuerpo -->
+        <div class="pixel-window__body proyectos__body">
+
+          {lista.length === 0 ? (
+            /* ---- Estado vacío ---- */
+            <>
+              <div class="proyectos__icon" aria-hidden="true">📁</div>
+              <h2 class="proyectos__title">&gt; Proyectos_</h2>
+
+              <div class="proyectos__log" aria-label="Carga de proyectos simulada">
+                <p class="proyectos__log-line">
+                  <span class="terminal__prompt">$ </span>
+                  <span>loading projects<span class="loading-dots"></span></span>
+                </p>
+                <p class="proyectos__log-line proyectos__log-line--delay">
+                  <span class="terminal__prompt">$ </span>
+                  <span style="color: var(--videojuegos)">first project incoming<span class="loading-dots"></span></span>
+                </p>
+                <p class="proyectos__log-line proyectos__log-line--comment">
+                  <span>// ¿Tenés una idea? Únete y cuéntanos.</span>
+                </p>
+              </div>
+
+              <a href="#unete" class="pixel-btn proyectos__cta">
+                &gt; Proponer proyecto
+              </a>
+            </>
+          ) : (
+            /* ---- Proyectos reales ---- */
+            <>
+              <div class="proyectos__header">
+                <h2 class="proyectos__title">&gt; Proyectos_</h2>
+                <span class="proyectos__count">{lista.length} activos</span>
+              </div>
+
+              <ul class="proyectos__grid">
+                {lista.map((p) => {
+                  const div = p.division as { nombre: string; color_hex: string; icono: string } | null;
+                  const estado = estadoLabel[p.estado] ?? { label: p.estado, color: 'var(--text-muted)' };
+                  return (
+                    <li class="proyecto-card">
+                      {div && (
+                        <div class="proyecto-card__div-bar" style={`background: ${div.color_hex}`}></div>
+                      )}
+                      <div class="proyecto-card__body">
+                        <div class="proyecto-card__top">
+                          {div && (
+                            <span class="proyecto-card__div-badge" style={`color: ${div.color_hex}; border-color: ${div.color_hex}`}>
+                              {div.icono} {div.nombre}
+                            </span>
+                          )}
+                          <span class="proyecto-card__estado" style={`color: ${estado.color}`}>
+                            {estado.label}
+                          </span>
+                        </div>
+                        <h3 class="proyecto-card__nombre">{p.nombre}</h3>
+                        <p class="proyecto-card__desc">{p.descripcion}</p>
+                        {p.link && (
+                          <a href={p.link} target="_blank" rel="noopener noreferrer" class="proyecto-card__link">
+                            ver proyecto →
+                          </a>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <a href="#unete" class="pixel-btn proyectos__cta">
+                &gt; Proponer proyecto
+              </a>
+            </>
+          )}
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .proyectos {
+    position: relative;
+    z-index: 10;
+  }
+
+  .proyectos__window-wrap {
+    max-width: 720px;
+    margin-inline: auto;
+  }
+
+  .proyectos__body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.25rem;
+    padding: 2rem 1.5rem;
+  }
+
+  /* ---- Estado vacío ---- */
+  .proyectos__icon {
+    font-size: 2.5rem;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .proyectos__title {
+    font-family: var(--font-pixel);
+    font-size: clamp(0.7rem, 2.5vw, 1rem);
+    color: var(--text);
+  }
+
+  .proyectos__log {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: left;
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+  }
+
+  .proyectos__log-line {
+    color: var(--text-muted);
+  }
+
+  .proyectos__log-line--delay {
+    animation-delay: 0.8s;
+  }
+
+  .proyectos__log-line--comment {
+    color: var(--text-dim);
+    font-style: italic;
+    margin-top: 0.25rem;
+  }
+
+  .terminal__prompt {
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  .proyectos__cta {
+    margin-top: 0.5rem;
+  }
+
+  /* ---- Con proyectos reales ---- */
+  .proyectos__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .proyectos__count {
+    font-family: var(--font-pixel);
+    font-size: 0.45rem;
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 10%, transparent);
+    border: 1px solid var(--primary);
+    padding: 0.2rem 0.6rem;
+  }
+
+  .proyectos__grid {
+    list-style: none;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: left;
+  }
+
+  /* ---- Tarjeta de proyecto ---- */
+  .proyecto-card {
+    display: grid;
+    grid-template-columns: 3px 1fr;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .proyecto-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--primary);
+  }
+
+  .proyecto-card__div-bar {
+    width: 3px;
+    align-self: stretch;
+  }
+
+  .proyecto-card__body {
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .proyecto-card__top {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .proyecto-card__div-badge {
+    font-family: var(--font-pixel);
+    font-size: 0.38rem;
+    border: 1px solid currentColor;
+    padding: 0.15rem 0.4rem;
+    background: color-mix(in srgb, currentColor 8%, transparent);
+  }
+
+  .proyecto-card__estado {
+    font-family: var(--font-pixel);
+    font-size: 0.38rem;
+    margin-left: auto;
+  }
+
+  .proyecto-card__nombre {
+    font-family: var(--font-pixel);
+    font-size: 0.52rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .proyecto-card__desc {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  .proyecto-card__link {
+    font-family: var(--font-pixel);
+    font-size: 0.4rem;
+    color: var(--primary);
+    text-decoration: none;
+    align-self: flex-start;
+    margin-top: 0.25rem;
+    transition: opacity 0.2s;
+  }
+
+  .proyecto-card__link:hover {
+    opacity: 0.7;
+  }
+</style>

@@ -1,0 +1,194 @@
+/* ============================================
+   SOCYIT — ANIMATIONS CSS
+   Todas las animaciones del proyecto
+   ============================================ */
+
+/* ---- PARPADEO CURSOR ---- */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ---- FLOTACIÓN (logo) ---- */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-18px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ---- ROTACIÓN SUTIL (ícono calendario) ---- */
+@keyframes rotate-subtle {
+  0%, 85%, 100% { transform: rotate(0deg); }
+  90%            { transform: rotate(-8deg); }
+  95%            { transform: rotate(8deg); }
+}
+
+.animate-rotate-subtle {
+  animation: rotate-subtle 3s ease-in-out infinite;
+}
+
+/* ---- GLITCH (título SocyIT) ---- */
+@keyframes glitch-1 {
+  0%   { clip-path: inset(20% 0 50% 0); transform: translate(-4px, 0); }
+  20%  { clip-path: inset(60% 0 10% 0); transform: translate(4px, 0); }
+  40%  { clip-path: inset(40% 0 40% 0); transform: translate(-2px, 0); }
+  60%  { clip-path: inset(80% 0 5%  0); transform: translate(2px, 0); }
+  80%  { clip-path: inset(10% 0 70% 0); transform: translate(-4px, 0); }
+  100% { clip-path: inset(20% 0 50% 0); transform: translate(0, 0); }
+}
+
+@keyframes glitch-2 {
+  0%   { clip-path: inset(50% 0 20% 0); transform: translate(4px, 0); }
+  20%  { clip-path: inset(10% 0 60% 0); transform: translate(-4px, 0); }
+  40%  { clip-path: inset(70% 0 10% 0); transform: translate(2px, 0); }
+  60%  { clip-path: inset(30% 0 50% 0); transform: translate(-2px, 0); }
+  80%  { clip-path: inset(5%  0 80% 0); transform: translate(4px, 0); }
+  100% { clip-path: inset(50% 0 20% 0); transform: translate(0, 0); }
+}
+
+.glitch {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.glitch::before {
+  color: #06b6d4; /* cian */
+  animation: glitch-1 3.5s steps(1) infinite;
+  opacity: 0.8;
+}
+
+.glitch::after {
+  color: #ef4444; /* rojo */
+  animation: glitch-2 3.5s steps(1) infinite;
+  opacity: 0.8;
+  animation-delay: 0.1s;
+}
+
+/* ---- APARICIÓN DE LÍNEAS EN TERMINAL ---- */
+@keyframes terminal-line-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.terminal-line {
+  opacity: 0;
+  animation: terminal-line-in 0.3s ease forwards;
+}
+
+/* Los delays se asignan inline o con nth-child */
+.terminal-line:nth-child(1)  { animation-delay: 0.2s; }
+.terminal-line:nth-child(2)  { animation-delay: 0.5s; }
+.terminal-line:nth-child(3)  { animation-delay: 0.8s; }
+.terminal-line:nth-child(4)  { animation-delay: 1.1s; }
+.terminal-line:nth-child(5)  { animation-delay: 1.4s; }
+.terminal-line:nth-child(6)  { animation-delay: 1.7s; }
+.terminal-line:nth-child(7)  { animation-delay: 2.0s; }
+.terminal-line:nth-child(8)  { animation-delay: 2.3s; }
+.terminal-line:nth-child(9)  { animation-delay: 2.6s; }
+.terminal-line:nth-child(10) { animation-delay: 2.9s; }
+
+/* ---- GLOW PULSANTE (logo en sección únete) ---- */
+@keyframes glow-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px var(--primary)) drop-shadow(0 0 20px var(--primary-glow));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px var(--primary)) drop-shadow(0 0 50px var(--primary-glow));
+  }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2.5s ease-in-out infinite;
+}
+
+/* ---- FADE IN UP (elementos al hacer scroll) ---- */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fade-in-up 0.6s ease forwards;
+}
+
+/* Para usar con IntersectionObserver: la clase se agrega con JS */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---- TYPING (typewriter del hero) ---- */
+/* Manejado por JS (typewriter.js), esta animación es para el cursor */
+@keyframes type-cursor {
+  0%, 100% { border-right-color: var(--primary); }
+  50%       { border-right-color: transparent; }
+}
+
+/* ---- DOTS LOADING (proyectos) ---- */
+@keyframes dots {
+  0%   { content: '.'; }
+  33%  { content: '..'; }
+  66%  { content: '...'; }
+  100% { content: '.'; }
+}
+
+.loading-dots::after {
+  content: '.';
+  animation: dots 1.5s steps(1) infinite;
+}
+
+/* ---- SLIDE IN (barra divisiones hover) ---- */
+.division-bar {
+  transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.division-bar:hover {
+  transform: translateX(6px);
+}
+
+/* ---- NAVBAR HIDE/SHOW ---- */
+.navbar {
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+}
+
+.navbar.hidden {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+/* ---- TIMELINE CONNECTOR ---- */
+@keyframes line-grow {
+  from { height: 0; }
+  to   { height: 100%; }
+}

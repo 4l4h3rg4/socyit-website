@@ -1,0 +1,228 @@
+---
+// Eventos.astro — Ventana terminal con formulario de suscripción
+---
+
+<section id="eventos" class="eventos">
+  <div class="container">
+    <div class="eventos__window-wrap reveal">
+      <div class="pixel-window">
+
+        <!-- Barra superior -->
+        <div class="pixel-window__bar">
+          <div class="pixel-window__dots">
+            <div class="pixel-window__dot pixel-window__dot--red"></div>
+            <div class="pixel-window__dot pixel-window__dot--yellow"></div>
+            <div class="pixel-window__dot pixel-window__dot--green"></div>
+          </div>
+          <span class="pixel-window__title">eventos.exe</span>
+        </div>
+
+        <!-- Cuerpo -->
+        <div class="pixel-window__body eventos__body">
+          <div class="eventos__icon animate-rotate-subtle" aria-hidden="true">📅</div>
+
+          <h2 class="eventos__title">&gt; Eventos_</h2>
+
+          <p class="eventos__desc">
+            Hackathons, meetups, talleres y más.
+          </p>
+
+          <p class="eventos__sub">
+            Estamos preparando algo grande.
+            <br>Déjanos tu email y te avisamos.
+          </p>
+
+          <!-- Estado: formulario (visible por defecto) -->
+          <form
+            class="eventos__form"
+            id="eventosForm"
+            onsubmit="handleSubmit(event)"
+            novalidate
+          >
+            <div class="eventos__input-row">
+              <input
+                type="email"
+                id="emailInput"
+                name="email"
+                placeholder="tu@email.com"
+                class="eventos__input"
+                required
+                autocomplete="email"
+                aria-label="Tu email para recibir novedades de eventos"
+              />
+              <button type="submit" class="pixel-btn" id="submitBtn">
+                Avísame
+              </button>
+            </div>
+            <p class="eventos__error" id="emailError" aria-live="polite"></p>
+          </form>
+
+          <!-- Estado: enviado (oculto hasta confirmar) -->
+          <div class="eventos__success" id="eventosSuccess" aria-live="polite">
+            <p class="eventos__success-msg">
+              ✅ ¡Listo! Te avisaremos cuando haya novedades.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById('eventosForm') as HTMLFormElement;
+  const success = document.getElementById('eventosSuccess')!;
+  const errorEl = document.getElementById('emailError')!;
+  const submitBtn = document.getElementById('submitBtn')!;
+
+  async function handleSubmit(e: Event) {
+    e.preventDefault();
+    errorEl.textContent = '';
+
+    const emailInput = document.getElementById('emailInput') as HTMLInputElement;
+    const email = emailInput.value.trim();
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errorEl.textContent = '⚠ Ingresa un email válido.';
+      return;
+    }
+
+    submitBtn.setAttribute('disabled', 'true');
+    submitBtn.textContent = 'Enviando...';
+
+    try {
+      const res = await fetch('/api/suscribir', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      if (res.ok) {
+        form.classList.add('hidden');
+        success.classList.add('visible');
+      } else {
+        const data = await res.json();
+        errorEl.textContent = data.error ?? '⚠ Algo salió mal. Intentá de nuevo.';
+        submitBtn.removeAttribute('disabled');
+        submitBtn.textContent = 'Avísame';
+      }
+    } catch {
+      errorEl.textContent = '⚠ Error de conexión. Intentá más tarde.';
+      submitBtn.removeAttribute('disabled');
+      submitBtn.textContent = 'Avísame';
+    }
+  }
+
+  // Exponer globalmente para el onsubmit inline
+  (window as any).handleSubmit = handleSubmit;
+</script>
+
+<style>
+  .eventos {
+    position: relative;
+    z-index: 10;
+  }
+
+  .eventos__window-wrap {
+    max-width: 640px;
+    margin-inline: auto;
+  }
+
+  .eventos__body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+    padding: 2rem 1.5rem;
+  }
+
+  .eventos__icon {
+    font-size: 2.5rem;
+    display: block;
+  }
+
+  .eventos__title {
+    font-family: var(--font-pixel);
+    font-size: clamp(0.7rem, 2.5vw, 1rem);
+    color: var(--text);
+  }
+
+  .eventos__desc {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--text-muted);
+  }
+
+  .eventos__sub {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  /* ---- Formulario ---- */
+  .eventos__form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .eventos__input-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .eventos__input {
+    flex: 1;
+    min-width: 200px;
+    background: var(--bg);
+    border: 1px solid var(--border-bright);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    padding: 0.65rem 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .eventos__input::placeholder {
+    color: var(--text-dim);
+  }
+
+  .eventos__input:focus {
+    border-color: var(--primary);
+  }
+
+  .eventos__error {
+    font-family: var(--font-pixel);
+    font-size: 0.45rem;
+    color: var(--ciber);
+    min-height: 1rem;
+  }
+
+  /* ---- Estado enviado ---- */
+  .eventos__success {
+    display: none;
+  }
+
+  .eventos__success.visible {
+    display: block;
+    animation: fade-in-up 0.5s ease forwards;
+  }
+
+  .eventos__success-msg {
+    font-family: var(--font-pixel);
+    font-size: 0.55rem;
+    color: #22c55e;
+    line-height: 1.8;
+  }
+
+  /* Ocultar formulario al confirmar */
+  .eventos__form.hidden {
+    display: none;
+  }
+</style>

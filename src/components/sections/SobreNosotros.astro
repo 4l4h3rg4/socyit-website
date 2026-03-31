@@ -1,0 +1,246 @@
+---
+// SobreNosotros.astro — Terminal animada + panel de estadísticas
+---
+
+<section id="sobre-nosotros" class="sobre-nosotros">
+  <div class="container sobre__inner">
+
+    <!-- Terminal izquierda -->
+    <div class="sobre__terminal reveal">
+      <div class="pixel-window">
+        <!-- Barra superior -->
+        <div class="pixel-window__bar">
+          <div class="pixel-window__dots">
+            <div class="pixel-window__dot pixel-window__dot--red"></div>
+            <div class="pixel-window__dot pixel-window__dot--yellow"></div>
+            <div class="pixel-window__dot pixel-window__dot--green"></div>
+          </div>
+          <span class="pixel-window__title">socyit@terminal ~ $</span>
+        </div>
+
+        <!-- Cuerpo terminal -->
+        <div class="pixel-window__body terminal__body" id="terminalBody">
+          <div class="terminal-line">
+            <span class="terminal__prompt">$ </span>
+            <span class="terminal__cmd">cat mission.txt</span>
+          </div>
+          <div class="terminal-line terminal__output">
+            &gt; Somos una comunidad donde el conocimiento IT no tiene<br>
+            &nbsp;&nbsp;fronteras. Desde ciberseguridad hasta robótica,<br>
+            &nbsp;&nbsp;todos tienen un lugar acá.
+          </div>
+
+          <div class="terminal-line terminal__spacer"></div>
+
+          <div class="terminal-line">
+            <span class="terminal__prompt">$ </span>
+            <span class="terminal__cmd">cat solution.txt</span>
+          </div>
+          <div class="terminal-line terminal__output">
+            &gt; Unimos personas apasionadas por la tecnología,<br>
+            &nbsp;&nbsp;les damos un espacio para colaborar, aprender<br>
+            &nbsp;&nbsp;y construir proyectos reales juntas.
+          </div>
+
+          <div class="terminal-line terminal__spacer"></div>
+
+          <div class="terminal-line">
+            <span class="terminal__prompt">$ </span>
+            <span class="terminal__cmd">cat vision.txt</span>
+          </div>
+          <div class="terminal-line terminal__output">
+            &gt; Ser la comunidad de referencia para toda persona<br>
+            &nbsp;&nbsp;que quiera crecer profesionalmente en el mundo IT<br>
+            &nbsp;&nbsp;de Latinoamérica y más allá.
+          </div>
+
+          <div class="terminal-line">
+            <span class="terminal__prompt">$ </span>
+            <span class="terminal__cursor">▋</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel de estadísticas derecha -->
+    <div class="sobre__stats">
+      <span class="section-tag reveal">// SOBRE NOSOTROS</span>
+      <h2 class="sobre__title reveal">&gt; ¿Por qué existimos?_</h2>
+
+      <div class="stats__list">
+        <div class="stat-block reveal">
+          <div class="stat-block__number" style="color: var(--robotica)">4</div>
+          <div class="stat-block__label">Divisiones</div>
+          <div class="stat-block__desc">
+            Robótica & IA, Ciberseguridad, Software y Videojuegos
+          </div>
+        </div>
+
+        <div class="stat-block reveal">
+          <div class="stat-block__number" style="color: var(--primary)">∞</div>
+          <div class="stat-block__label">Posibilidades</div>
+          <div class="stat-block__desc">
+            Proyectos, colaboraciones, aprendizaje sin límites
+          </div>
+        </div>
+
+        <div class="stat-block reveal">
+          <div class="stat-block__number" style="color: var(--videojuegos)">1</div>
+          <div class="stat-block__label">Comunidad</div>
+          <div class="stat-block__desc">
+            Un solo espacio para todo el mundo IT
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Activa la animación del terminal cuando entra al viewport
+  const terminalBody = document.getElementById('terminalBody');
+  if (terminalBody) {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          terminalBody.classList.add('terminal--active');
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(terminalBody);
+  }
+
+  // Cursor parpadeante del terminal
+  const cursor = document.querySelector('.terminal__cursor');
+  if (cursor) {
+    setInterval(() => cursor.classList.toggle('invisible'), 600);
+  }
+</script>
+
+<style>
+  .sobre-nosotros {
+    position: relative;
+    z-index: 10;
+  }
+
+  .sobre__inner {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  /* ---- Terminal ---- */
+  .sobre__terminal {
+    width: 100%;
+  }
+
+  .terminal__body {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.8;
+  }
+
+  /* Oculta las líneas hasta que el observer las active */
+  .terminal__body .terminal-line {
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: none;
+  }
+
+  .terminal__body.terminal--active .terminal-line {
+    animation: terminal-line-in 0.3s ease forwards;
+  }
+
+  .terminal__prompt {
+    color: var(--primary);
+    font-weight: 700;
+    user-select: none;
+  }
+
+  .terminal__cmd {
+    color: #22c55e;
+  }
+
+  .terminal__output {
+    color: var(--text-muted);
+    padding-left: 1rem;
+    font-size: 0.78rem;
+  }
+
+  .terminal__spacer {
+    height: 0.5rem;
+  }
+
+  .terminal__cursor {
+    color: var(--primary);
+  }
+
+  .terminal__cursor.invisible {
+    opacity: 0;
+  }
+
+  /* ---- Stats ---- */
+  .sobre__stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .sobre__title {
+    font-family: var(--font-pixel);
+    font-size: clamp(0.7rem, 2vw, 1rem);
+    color: var(--text);
+    line-height: 1.5;
+    margin-bottom: 1rem;
+  }
+
+  .stats__list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .stat-block {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--primary);
+    padding: 1rem 1.25rem;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .stat-block:hover {
+    background: var(--bg-card-hover);
+    border-left-color: var(--primary);
+  }
+
+  .stat-block__number {
+    font-family: var(--font-pixel);
+    font-size: 1.8rem;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-block__label {
+    font-family: var(--font-pixel);
+    font-size: 0.5rem;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+    text-transform: uppercase;
+  }
+
+  .stat-block__desc {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 768px) {
+    .sobre__inner {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

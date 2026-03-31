@@ -1,0 +1,38 @@
+---
+// pages/index.astro — Landing page principal
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import StarBackground from '../components/ui/StarBackground.astro';
+import Navbar from '../components/layout/Navbar.astro';
+import Footer from '../components/layout/Footer.astro';
+
+import Hero from '../components/sections/Hero.astro';
+import SobreNosotros from '../components/sections/SobreNosotros.astro';
+import Divisiones from '../components/sections/Divisiones.astro';
+import Eventos from '../components/sections/Eventos.astro';
+import Proyectos from '../components/sections/Proyectos.astro';
+import ComoFunciona from '../components/sections/ComoFunciona.astro';
+import Unete from '../components/sections/Unete.astro';
+
+export const prerender = true;
+---
+
+<BaseLayout
+  title="SocyIT — Comunidad Tech | Robótica, Ciberseguridad, Software, Videojuegos"
+  description="Comunidad IT para todo el mundo tech: ciberseguridad, robótica, software, redes, IA y más. Conectamos mentes y construimos el futuro juntos. Únete hoy."
+>
+  <StarBackground />
+  <Navbar />
+
+  <main>
+    <Hero />
+    <SobreNosotros />
+    <Divisiones />
+    <Eventos />
+    <Proyectos />
+    <ComoFunciona />
+    <Unete />
+  </main>
+
+  <Footer />
+</BaseLayout>

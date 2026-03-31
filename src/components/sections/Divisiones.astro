@@ -1,0 +1,211 @@
+---
+// Divisiones.astro — Barras horizontales de cada división (vista resumen landing)
+// Obtiene datos de Supabase en build time (SSG via hybrid mode)
+
+import { supabase } from '../../lib/supabase';
+
+const { data } = await supabase
+  .from('divisiones')
+  .select('nombre, descripcion_corta, icono, color_hex, slug')
+  .eq('activa', true)
+  .order('orden', { ascending: true });
+
+// Mapear color_hex a nombre de clase CSS
+const colorMap: Record<string, string> = {
+  '#06b6d4': 'robotica',
+  '#ef4444': 'ciber',
+  '#7c3aed': 'software',
+  '#f59e0b': 'videojuegos',
+};
+
+const divisiones = (data ?? []).map((d) => ({
+  ...d,
+  colorClass: colorMap[d.color_hex] ?? 'robotica',
+}));
+---
+
+<section id="divisiones" class="divisiones">
+  <div class="container">
+    <div class="divisiones__header reveal">
+      <div class="divisiones__header-left">
+        <span class="section-tag">// ELIGE TU CAMINO</span>
+        <h2 class="divisiones__title">&gt; Divisiones_</h2>
+      </div>
+      <a href="/divisiones" class="divisiones__link">
+        Ver detalle completo →
+      </a>
+    </div>
+
+    <div class="divisiones__list">
+      {divisiones.map((div, i) => (
+        <a
+          href="/divisiones"
+          class={`division-bar division-bar--${div.colorClass} reveal`}
+          style={`animation-delay: ${i * 0.1}s`}
+          aria-label={`División ${div.nombre}`}
+        >
+          <!-- Barra lateral de color -->
+          <div class="division-bar__stripe"></div>
+
+          <!-- Ícono -->
+          <div class="division-bar__icon">{div.icono}</div>
+
+          <!-- Texto -->
+          <div class="division-bar__text">
+            <span class="division-bar__nombre">{div.nombre}</span>
+            <span class="division-bar__desc">{div.descripcion_corta}</span>
+          </div>
+
+          <!-- Flecha -->
+          <div class="division-bar__arrow">→</div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .divisiones {
+    position: relative;
+    z-index: 10;
+  }
+
+  .divisiones__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .divisiones__title {
+    font-family: var(--font-pixel);
+    font-size: clamp(0.8rem, 2.5vw, 1.2rem);
+    margin-top: 0.25rem;
+  }
+
+  .divisiones__link {
+    font-family: var(--font-pixel);
+    font-size: 0.45rem;
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+
+  .divisiones__link:hover {
+    color: var(--text);
+  }
+
+  .divisiones__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  /* ---- Barra de división ---- */
+  .division-bar {
+    display: grid;
+    grid-template-columns: 4px 52px 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 1.1rem 1.25rem 1.1rem 0;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  }
+
+  .division-bar:hover {
+    transform: translateX(6px);
+    background: var(--bg-card-hover);
+  }
+
+  /* Color de borde según división */
+  .division-bar--robotica:hover    { border-color: var(--robotica); }
+  .division-bar--ciber:hover       { border-color: var(--ciber); }
+  .division-bar--software:hover    { border-color: var(--software); }
+  .division-bar--videojuegos:hover { border-color: var(--videojuegos); }
+
+  /* Barra lateral de color */
+  .division-bar__stripe {
+    width: 4px;
+    align-self: stretch;
+    flex-shrink: 0;
+  }
+
+  .division-bar--robotica    .division-bar__stripe { background: var(--robotica); }
+  .division-bar--ciber       .division-bar__stripe { background: var(--ciber); }
+  .division-bar--software    .division-bar__stripe { background: var(--software); }
+  .division-bar--videojuegos .division-bar__stripe { background: var(--videojuegos); }
+
+  /* Ícono */
+  .division-bar__icon {
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: rgba(255,255,255,0.04);
+    flex-shrink: 0;
+  }
+
+  /* Texto */
+  .division-bar__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+  }
+
+  .division-bar__nombre {
+    font-family: var(--font-pixel);
+    font-size: 0.6rem;
+    color: var(--text);
+    display: block;
+  }
+
+  .division-bar--robotica    .division-bar__nombre { color: var(--robotica); }
+  .division-bar--ciber       .division-bar__nombre { color: var(--ciber); }
+  .division-bar--software    .division-bar__nombre { color: var(--software); }
+  .division-bar--videojuegos .division-bar__nombre { color: var(--videojuegos); }
+
+  .division-bar__desc {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Flecha */
+  .division-bar__arrow {
+    font-family: var(--font-mono);
+    font-size: 1.2rem;
+    color: var(--text-dim);
+    padding-right: 0.5rem;
+    transition: color 0.25s, transform 0.25s;
+  }
+
+  .division-bar:hover .division-bar__arrow {
+    color: var(--primary);
+    transform: translateX(4px);
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 520px) {
+    .division-bar__desc { display: none; }
+
+    .division-bar {
+      grid-template-columns: 4px 44px 1fr auto;
+    }
+  }
+</style>

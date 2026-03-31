@@ -1,0 +1,486 @@
+---
+// pages/divisiones.astro — Página de divisiones con tarjetas expandidas
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import StarBackground from '../components/ui/StarBackground.astro';
+import Navbar from '../components/layout/Navbar.astro';
+import Footer from '../components/layout/Footer.astro';
+import { supabase } from '../lib/supabase';
+import type { Division } from '../types';
+
+export const prerender = false; // SSR para datos frescos de Supabase
+
+// Obtener divisiones con sus líderes desde Supabase
+const { data: divisiones, error } = await supabase
+  .from('divisiones')
+  .select('*, lider:lideres(*)')
+  .eq('activa', true)
+  .order('orden', { ascending: true });
+
+const divisionesData = (divisiones as Division[]) ?? [];
+
+const whatsappUrl = import.meta.env.PUBLIC_WHATSAPP_URL ?? '#';
+---
+
+<BaseLayout
+  title="Divisiones — SocyIT"
+  description="Conocé las divisiones de SocyIT: Robótica & IA, Ciberseguridad, Desarrollo de Software y Videojuegos. Cada una con su propio enfoque, líder y proyectos."
+>
+  <StarBackground />
+  <Navbar />
+
+  <main class="divisiones-page">
+    <div class="container">
+
+      <!-- Header -->
+      <header class="div-page__header reveal">
+        <a href="/" class="div-page__back">← cd ../inicio</a>
+        <span class="section-tag">// TODAS LAS DIVISIONES</span>
+        <h1 class="div-page__title glow-text">Divisiones_</h1>
+        <p class="div-page__sub">
+          Cada división es un equipo especializado.<br>
+          Al unirte tendrás acceso libre a todas.
+        </p>
+      </header>
+
+      <!-- Tarjetas de divisiones -->
+      <div class="div-page__cards">
+        {divisionesData.length === 0 ? (
+          <div class="div-page__empty">
+            <p class="terminal__prompt">$ loading divisions<span class="loading-dots"></span></p>
+          </div>
+        ) : (
+          divisionesData.map((div, i) => (
+            <article
+              class={`div-card div-card--${div.color_hex.replace('#','')} reveal`}
+              style={`--div-color: ${div.color_hex}; animation-delay: ${i * 0.1}s`}
+            >
+              <!-- Barra lateral de color -->
+              <div class="div-card__stripe"></div>
+
+              <div class="div-card__content">
+                <!-- Cabecera: ícono + nombre + tags -->
+                <div class="div-card__top">
+                  <div class="div-card__icon-box">
+                    <span class="div-card__icon">{div.icono}</span>
+                  </div>
+
+                  <div class="div-card__meta">
+                    <h2 class="div-card__nombre">{div.nombre}</h2>
+                    <div class="div-card__tags">
+                      {div.tags?.map((tag: string) => (
+                        <span class="div-card__tag">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Descripción extendida -->
+                <p class="div-card__desc">{div.descripcion_extendida}</p>
+
+                <!-- Sobre la división -->
+                {div.sobre_division && (
+                  <div class="div-card__block">
+                    <h3 class="div-card__block-title">&gt; ¿De qué va?_</h3>
+                    <p class="div-card__block-text">{div.sobre_division}</p>
+                  </div>
+                )}
+
+                <!-- Planes y visión -->
+                {div.planes && div.planes.length > 0 && (
+                  <div class="div-card__block">
+                    <h3 class="div-card__block-title">&gt; Planes & visión_</h3>
+                    <ul class="div-card__planes">
+                      {div.planes.map((plan: string) => (
+                        <li class="div-card__plan-item">
+                          <span class="div-card__plan-bullet">▶</span>
+                          {plan}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <!-- Cómo apoyamos -->
+                {div.como_apoyamos && (
+                  <div class="div-card__block">
+                    <h3 class="div-card__block-title">&gt; ¿Cómo nos apoyamos?_</h3>
+                    <p class="div-card__block-text">{div.como_apoyamos}</p>
+                  </div>
+                )}
+
+                <!-- Líder de la división -->
+                {div.lider && (
+                  <div class="div-card__lider">
+                    <div class="div-card__lider-avatar">
+                      {div.lider.foto_url ? (
+                        <img
+                          src={div.lider.foto_url}
+                          alt={`Foto de ${div.lider.nombre}`}
+                          width="72"
+                          height="72"
+                          class="div-card__lider-img"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div class="div-card__lider-placeholder">👤</div>
+                      )}
+                    </div>
+                    <div class="div-card__lider-info">
+                      <span class="div-card__lider-label">// Líder</span>
+                      <strong class="div-card__lider-nombre">{div.lider.nombre}</strong>
+                      <span class="div-card__lider-rol">{div.lider.rol}</span>
+                      <p class="div-card__lider-contexto">{div.lider.contexto}</p>
+                      <div class="div-card__lider-links">
+                        {div.lider.github_url && (
+                          <a href={div.lider.github_url} target="_blank" rel="noopener" class="div-card__lider-link">
+                            GitHub →
+                          </a>
+                        )}
+                        {div.lider.linkedin_url && (
+                          <a href={div.lider.linkedin_url} target="_blank" rel="noopener" class="div-card__lider-link">
+                            LinkedIn →
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </article>
+          ))
+        )}
+      </div>
+
+      <!-- CTA final -->
+      <div class="div-page__cta reveal">
+        <div class="div-page__cta-card">
+          <h2 class="div-page__cta-title">&gt; ¿Listo para unirte?_</h2>
+          <p class="div-page__cta-sub">
+            Un solo clic. Acceso a todas las divisiones.
+          </p>
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="pixel-btn pixel-btn--whatsapp"
+          >
+            &gt; Unirme por WhatsApp_
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .divisiones-page {
+    padding-top: 4rem;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* ---- Header ---- */
+  .div-page__header {
+    margin-bottom: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .div-page__back {
+    font-family: var(--font-pixel);
+    font-size: 0.5rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    align-self: flex-start;
+  }
+
+  .div-page__back:hover {
+    color: var(--primary);
+  }
+
+  .div-page__title {
+    font-family: var(--font-pixel);
+    font-size: clamp(1.2rem, 5vw, 2.5rem);
+    margin-top: 0.25rem;
+  }
+
+  .div-page__sub {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  /* ---- Tarjetas ---- */
+  .div-page__cards {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .div-card {
+    display: grid;
+    grid-template-columns: 4px 1fr;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .div-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--div-color);
+  }
+
+  .div-card__stripe {
+    background: var(--div-color);
+    width: 4px;
+  }
+
+  .div-card__content {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* Cabecera */
+  .div-card__top {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+
+  .div-card__icon-box {
+    width: 72px;
+    height: 72px;
+    background: color-mix(in srgb, var(--div-color) 15%, var(--bg-card));
+    border: 2px solid var(--div-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    flex-shrink: 0;
+  }
+
+  .div-card__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .div-card__nombre {
+    font-family: var(--font-pixel);
+    font-size: clamp(0.6rem, 2vw, 0.9rem);
+    color: var(--div-color);
+    line-height: 1.4;
+  }
+
+  .div-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .div-card__tag {
+    font-family: var(--font-pixel);
+    font-size: 0.4rem;
+    color: var(--div-color);
+    border: 1px solid var(--div-color);
+    padding: 0.2rem 0.5rem;
+    background: color-mix(in srgb, var(--div-color) 10%, transparent);
+  }
+
+  /* Descripción */
+  .div-card__desc {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  /* Bloques de info */
+  .div-card__block {
+    border-left: 2px solid var(--div-color);
+    padding-left: 1rem;
+  }
+
+  .div-card__block-title {
+    font-family: var(--font-pixel);
+    font-size: 0.5rem;
+    color: var(--div-color);
+    margin-bottom: 0.6rem;
+  }
+
+  .div-card__block-text {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  /* Planes */
+  .div-card__planes {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .div-card__plan-item {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+  }
+
+  .div-card__plan-bullet {
+    color: var(--div-color);
+    font-size: 0.6rem;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+  }
+
+  /* ---- Líder ---- */
+  .div-card__lider {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    background: color-mix(in srgb, var(--div-color) 8%, var(--bg-terminal));
+    border: 1px solid color-mix(in srgb, var(--div-color) 30%, transparent);
+    padding: 1.25rem;
+  }
+
+  .div-card__lider-img {
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+    border: 2px solid var(--div-color);
+    border-radius: 0;
+    flex-shrink: 0;
+  }
+
+  .div-card__lider-placeholder {
+    width: 72px;
+    height: 72px;
+    background: var(--bg-card);
+    border: 2px solid var(--div-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    flex-shrink: 0;
+  }
+
+  .div-card__lider-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .div-card__lider-label {
+    font-family: var(--font-pixel);
+    font-size: 0.4rem;
+    color: var(--div-color);
+    letter-spacing: 0.1em;
+  }
+
+  .div-card__lider-nombre {
+    font-family: var(--font-pixel);
+    font-size: 0.55rem;
+    color: var(--text);
+  }
+
+  .div-card__lider-rol {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .div-card__lider-contexto {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-top: 0.25rem;
+  }
+
+  .div-card__lider-links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .div-card__lider-link {
+    font-family: var(--font-pixel);
+    font-size: 0.4rem;
+    color: var(--div-color);
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  .div-card__lider-link:hover {
+    opacity: 0.75;
+  }
+
+  /* Estado vacío */
+  .div-page__empty {
+    text-align: center;
+    padding: 3rem;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+  }
+
+  /* ---- CTA final ---- */
+  .div-page__cta {
+    margin-bottom: 3rem;
+  }
+
+  .div-page__cta-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--primary);
+    padding: 2.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .div-page__cta-title {
+    font-family: var(--font-pixel);
+    font-size: clamp(0.7rem, 2vw, 1rem);
+    color: var(--text);
+  }
+
+  .div-page__cta-sub {
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 600px) {
+    .div-card__top {
+      flex-direction: column;
+    }
+
+    .div-card__lider {
+      flex-direction: column;
+    }
+
+    .div-card__content {
+      padding: 1.25rem;
+    }
+  }
+</style>

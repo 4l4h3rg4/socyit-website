@@ -1,0 +1,261 @@
+---
+// Navbar.astro — Dock flotante en la parte inferior (desktop) + hamburguesa (mobile)
+---
+
+<nav class="navbar" id="navbar" aria-label="Navegación principal">
+  <!-- DESKTOP: dock flotante -->
+  <ul class="navbar__dock" role="list">
+    <li>
+      <a href="/#hero" class="navbar__item" data-section="hero">
+        <span class="navbar__icon">🏠</span>
+        <span class="navbar__label">Inicio</span>
+      </a>
+    </li>
+    <li>
+      <a href="/#sobre-nosotros" class="navbar__item" data-section="sobre-nosotros">
+        <span class="navbar__icon">📡</span>
+        <span class="navbar__label">Nosotros</span>
+      </a>
+    </li>
+    <li>
+      <a href="/divisiones" class="navbar__item" data-section="divisiones">
+        <span class="navbar__icon">🔭</span>
+        <span class="navbar__label">Divisiones</span>
+      </a>
+    </li>
+    <li>
+      <a href="/#eventos" class="navbar__item" data-section="eventos">
+        <span class="navbar__icon">📅</span>
+        <span class="navbar__label">Eventos</span>
+      </a>
+    </li>
+    <li>
+      <a href="/#proyectos" class="navbar__item" data-section="proyectos">
+        <span class="navbar__icon">🛸</span>
+        <span class="navbar__label">Proyectos</span>
+      </a>
+    </li>
+    <li>
+      <a href="/#unete" class="navbar__item navbar__item--cta" data-section="unete">
+        <span class="navbar__icon">🚀</span>
+        <span class="navbar__label">Únete</span>
+      </a>
+    </li>
+  </ul>
+
+  <!-- MOBILE: botón hamburguesa + menú desplegable -->
+  <button class="navbar__hamburger" id="hamburgerBtn" aria-label="Abrir menú" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+
+  <div class="navbar__mobile-menu" id="mobileMenu" aria-hidden="true">
+    <ul role="list">
+      <li><a href="/#hero"           class="navbar__mobile-item" onclick="closeMenu()">🏠 Inicio</a></li>
+      <li><a href="/#sobre-nosotros" class="navbar__mobile-item" onclick="closeMenu()">📡 Nosotros</a></li>
+      <li><a href="/divisiones"      class="navbar__mobile-item" onclick="closeMenu()">🔭 Divisiones</a></li>
+      <li><a href="/#eventos"        class="navbar__mobile-item" onclick="closeMenu()">📅 Eventos</a></li>
+      <li><a href="/#proyectos"      class="navbar__mobile-item" onclick="closeMenu()">🛸 Proyectos</a></li>
+      <li><a href="/#unete"          class="navbar__mobile-item navbar__mobile-item--cta" onclick="closeMenu()">🚀 Únete</a></li>
+    </ul>
+  </div>
+</nav>
+
+<script>
+  const navbar = document.getElementById('navbar')!;
+  const hamburgerBtn = document.getElementById('hamburgerBtn')!;
+  const mobileMenu = document.getElementById('mobileMenu')!;
+
+  // ---- Hide/show on scroll ----
+  let lastScrollY = window.scrollY;
+
+  window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+    if (currentScrollY > lastScrollY && currentScrollY > 100) {
+      navbar.classList.add('hidden');
+    } else {
+      navbar.classList.remove('hidden');
+    }
+    lastScrollY = currentScrollY;
+  }, { passive: true });
+
+  // ---- Hamburguesa mobile ----
+  hamburgerBtn.addEventListener('click', () => {
+    const isOpen = mobileMenu.classList.contains('open');
+    mobileMenu.classList.toggle('open', !isOpen);
+    hamburgerBtn.setAttribute('aria-expanded', String(!isOpen));
+    mobileMenu.setAttribute('aria-hidden', String(isOpen));
+  });
+
+  // Cierra el menú mobile desde los links
+  (window as any).closeMenu = () => {
+    mobileMenu.classList.remove('open');
+    hamburgerBtn.setAttribute('aria-expanded', 'false');
+    mobileMenu.setAttribute('aria-hidden', 'true');
+  };
+
+  // ---- Active link highlight (solo en landing) ----
+  if (window.location.pathname === '/') {
+    const sections = document.querySelectorAll('section[id]');
+    const navItems = document.querySelectorAll<HTMLElement>('.navbar__item[data-section]');
+
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            navItems.forEach((item) => item.classList.remove('active'));
+            const active = document.querySelector(`.navbar__item[data-section="${entry.target.id}"]`);
+            active?.classList.add('active');
+          }
+        });
+      },
+      { threshold: 0.4 }
+    );
+
+    sections.forEach((section) => sectionObserver.observe(section));
+  }
+</script>
+
+<style>
+  /* ---- DOCK (desktop) ---- */
+  .navbar {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease, bottom 0.35s ease;
+  }
+
+  .navbar.hidden {
+    transform: translateX(-50%) translateY(150%);
+    opacity: 0;
+  }
+
+  .navbar__dock {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: rgba(18, 18, 26, 0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border-bright);
+    border-radius: 0;
+    padding: 0.5rem 0.75rem;
+    list-style: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,102,241,0.1);
+  }
+
+  .navbar__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.85rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s, background 0.2s;
+    position: relative;
+  }
+
+  .navbar__item:hover,
+  .navbar__item.active {
+    color: var(--primary);
+    background: var(--primary-glow-sm);
+  }
+
+  .navbar__item--cta {
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    background: var(--primary-glow-sm);
+  }
+
+  .navbar__item--cta:hover {
+    background: var(--primary-glow);
+  }
+
+  .navbar__icon {
+    font-size: 1.1rem;
+    display: block;
+  }
+
+  .navbar__label {
+    font-family: var(--font-pixel);
+    font-size: 0.38rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  /* ---- HAMBURGUESA (mobile) ---- */
+  .navbar__hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: rgba(18, 18, 26, 0.9);
+    border: 1px solid var(--border-bright);
+    padding: 0.75rem;
+    cursor: pointer;
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 101;
+  }
+
+  .navbar__hamburger span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--primary);
+    transition: transform 0.3s, opacity 0.3s;
+  }
+
+  .navbar__mobile-menu {
+    display: none;
+    position: fixed;
+    bottom: 5rem;
+    right: 1.5rem;
+    background: rgba(18, 18, 26, 0.95);
+    border: 1px solid var(--border-bright);
+    backdrop-filter: blur(16px);
+    z-index: 100;
+    min-width: 180px;
+  }
+
+  .navbar__mobile-menu.open {
+    display: block;
+  }
+
+  .navbar__mobile-menu ul {
+    list-style: none;
+    padding: 0.5rem 0;
+  }
+
+  .navbar__mobile-item {
+    display: block;
+    padding: 0.75rem 1.25rem;
+    font-family: var(--font-pixel);
+    font-size: 0.45rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s, background 0.2s;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .navbar__mobile-item:last-child {
+    border-bottom: none;
+  }
+
+  .navbar__mobile-item:hover {
+    color: var(--primary);
+    background: var(--primary-glow-sm);
+  }
+
+  .navbar__mobile-item--cta {
+    color: var(--primary);
+  }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 640px) {
+    .navbar__dock      { display: none; }
+    .navbar__hamburger { display: flex; }
+  }
+</style>

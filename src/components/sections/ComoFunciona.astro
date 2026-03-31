@@ -1,0 +1,194 @@
+---
+// ComoFunciona.astro — Timeline vertical con 4 pasos
+
+const pasos = [
+  {
+    numero: '01',
+    titulo: 'Únete a tu división',
+    descripcion: 'Elige la rama que más te apasiona: Robótica, Ciber, Software o Videojuegos.',
+    icono: '🔭',
+  },
+  {
+    numero: '02',
+    titulo: 'Colabora entre ramas',
+    descripcion: 'Las mejores ideas nacen en la intersección. Conecta con otras divisiones.',
+    icono: '🤝',
+  },
+  {
+    numero: '03',
+    titulo: 'Construye proyectos reales',
+    descripcion: 'Convertí ideas en código, hardware o arte. Proyectos con impacto real.',
+    icono: '⚡',
+  },
+  {
+    numero: '04',
+    titulo: 'Despegamos juntos',
+    descripcion: 'Visibilidad, red de contactos, crecimiento profesional. Todos ganamos.',
+    icono: '🚀',
+  },
+];
+---
+
+<section class="como-funciona">
+  <div class="container">
+    <div class="como__header reveal">
+      <span class="section-tag">// PROCESO</span>
+      <h2 class="como__title">&gt; ¿Cómo funciona?_</h2>
+    </div>
+
+    <div class="como__timeline">
+      <!-- Línea vertical conectora -->
+      <div class="como__connector" aria-hidden="true"></div>
+
+      {pasos.map((paso, i) => (
+        <div
+          class="como__step reveal"
+          style={`animation-delay: ${i * 0.15}s`}
+        >
+          <!-- Ícono cuadrado -->
+          <div class="como__step-icon">
+            <span>{paso.icono}</span>
+          </div>
+
+          <!-- Contenido -->
+          <div class="como__step-content">
+            <div class="como__step-num">{paso.numero}</div>
+            <h3 class="como__step-title">{paso.titulo}</h3>
+            <p class="como__step-desc">{paso.descripcion}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .como-funciona {
+    position: relative;
+    z-index: 10;
+  }
+
+  .como__header {
+    margin-bottom: 3rem;
+  }
+
+  .como__title {
+    font-family: var(--font-pixel);
+    font-size: clamp(0.8rem, 2.5vw, 1.2rem);
+    margin-top: 0.25rem;
+  }
+
+  /* ---- Timeline ---- */
+  .como__timeline {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding-left: 3rem;
+  }
+
+  /* Línea conectora vertical */
+  .como__connector {
+    position: absolute;
+    left: 19px;
+    top: 20px;
+    bottom: 20px;
+    width: 2px;
+    background: linear-gradient(
+      to bottom,
+      var(--primary),
+      var(--software),
+      var(--robotica),
+      var(--videojuegos)
+    );
+    opacity: 0.4;
+  }
+
+  /* ---- Paso ---- */
+  .como__step {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    position: relative;
+  }
+
+  /* Ícono cuadrado */
+  .como__step-icon {
+    position: absolute;
+    left: -3rem;
+    top: 0;
+    width: 40px;
+    height: 40px;
+    background: var(--bg-card);
+    border: 2px solid var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+
+  /* Contenido del paso */
+  .como__step-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--primary);
+    padding: 1.25rem 1.5rem;
+    flex: 1;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .como__step-content:hover {
+    background: var(--bg-card-hover);
+  }
+
+  /* Número */
+  .como__step-num {
+    font-family: var(--font-pixel);
+    font-size: 0.45rem;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 0.35rem;
+  }
+
+  /* Título */
+  .como__step-title {
+    font-family: var(--font-pixel);
+    font-size: 0.6rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+  }
+
+  /* Descripción */
+  .como__step-desc {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  /* Colores del borde por paso */
+  .como__step:nth-child(2) .como__step-content { border-left-color: var(--robotica); }
+  .como__step:nth-child(2) .como__step-icon    { border-color: var(--robotica); }
+  .como__step:nth-child(3) .como__step-content { border-left-color: var(--software); }
+  .como__step:nth-child(3) .como__step-icon    { border-color: var(--software); }
+  .como__step:nth-child(4) .como__step-content { border-left-color: var(--ciber); }
+  .como__step:nth-child(4) .como__step-icon    { border-color: var(--ciber); }
+  .como__step:nth-child(5) .como__step-content { border-left-color: var(--videojuegos); }
+  .como__step:nth-child(5) .como__step-icon    { border-color: var(--videojuegos); }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 520px) {
+    .como__timeline {
+      padding-left: 2.5rem;
+    }
+
+    .como__step-icon {
+      left: -2.5rem;
+      width: 34px;
+      height: 34px;
+    }
+  }
+</style>
