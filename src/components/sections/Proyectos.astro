@@ -21,7 +21,7 @@ const estadoLabel: Record<string, { label: string; color: string }> = {
 
 <section id="proyectos" class="proyectos">
   <div class="container">
-    <div class="proyectos__window-wrap reveal">
+    <div class="proyectos__window-wrap">
       <div class="pixel-window">
 
         <!-- Barra superior -->
@@ -113,6 +113,29 @@ const estadoLabel: Record<string, { label: string; color: string }> = {
     </div>
   </div>
 </section>
+
+<script>
+  // ---- GSAP: window drop-in desde arriba con scale ----
+  import { gsap, ScrollTrigger, withMotion } from '../../lib/gsap';
+
+  withMotion(() => {
+    gsap.set('.proyectos__window-wrap', { autoAlpha: 0, y: -28, scale: 0.96 });
+
+    ScrollTrigger.create({
+      trigger: '#proyectos',
+      start: 'top 78%',
+      once: true,
+      onEnter: () =>
+        gsap.to('.proyectos__window-wrap', {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.65,
+          ease: 'power3.out',
+        }),
+    });
+  });
+</script>
 
 <style>
   .proyectos {

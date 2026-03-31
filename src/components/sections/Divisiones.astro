@@ -36,12 +36,12 @@ const divisiones = (data ?? []).map((d) => ({
       </a>
     </div>
 
+    <!-- El header usa .reveal (batch global de BaseLayout lo maneja) -->
     <div class="divisiones__list">
-      {divisiones.map((div, i) => (
+      {divisiones.map((div) => (
         <a
           href="/divisiones"
-          class={`division-bar division-bar--${div.colorClass} reveal`}
-          style={`animation-delay: ${i * 0.1}s`}
+          class={`division-bar division-bar--${div.colorClass}`}
           aria-label={`División ${div.nombre}`}
         >
           <!-- Barra lateral de color -->
@@ -63,6 +63,30 @@ const divisiones = (data ?? []).map((d) => ({
     </div>
   </div>
 </section>
+
+<script>
+  // ---- GSAP: barras de división entran desde la izquierda con stagger ----
+  import { gsap, ScrollTrigger, withMotion } from '../../lib/gsap';
+
+  withMotion(() => {
+    gsap.set('.division-bar', { autoAlpha: 0, x: -45 });
+
+    ScrollTrigger.create({
+      trigger: '.divisiones__list',
+      start: 'top 82%',
+      once: true,
+      onEnter: () => {
+        gsap.to('.division-bar', {
+          autoAlpha: 1,
+          x: 0,
+          stagger: 0.1,
+          duration: 0.45,
+          ease: 'power2.out',
+        });
+      },
+    });
+  });
+</script>
 
 <style>
   .divisiones {

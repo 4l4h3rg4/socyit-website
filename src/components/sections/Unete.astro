@@ -17,8 +17,8 @@ const pasos = [
 
   <div class="container unete__inner">
 
-    <!-- Logo flotando -->
-    <div class="unete__logo-wrap reveal">
+    <!-- Logo flotando — .reveal eliminado, GSAP maneja la entrada -->
+    <div class="unete__logo-wrap">
       <img
         src="/logo.svg"
         alt="Logo SocyIT"
@@ -29,12 +29,12 @@ const pasos = [
     </div>
 
     <!-- Título -->
-    <h2 class="unete__title glow-text reveal">
+    <h2 class="unete__title glow-text">
       &gt; Únete a la tripulación_
     </h2>
 
     <!-- Tarjeta de pasos -->
-    <div class="unete__card reveal">
+    <div class="unete__card">
       <ol class="unete__steps">
         {pasos.map((paso, i) => (
           <li class="unete__step">
@@ -50,19 +50,48 @@ const pasos = [
       href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"
-      class="pixel-btn pixel-btn--whatsapp unete__btn reveal"
+      class="pixel-btn pixel-btn--whatsapp unete__btn"
       aria-label="Unirse a la comunidad SocyIT por WhatsApp"
     >
       &gt; Unirme por WhatsApp_
     </a>
 
     <!-- Texto inferior con cursor -->
-    <p class="unete__footer-text reveal cursor">
+    <p class="unete__footer-text cursor">
       Prepárate para despegar
     </p>
 
   </div>
 </section>
+
+<script>
+  // ---- GSAP: logo pop + sequence glow ----
+  import { gsap, ScrollTrigger, withMotion } from '../../lib/gsap';
+
+  withMotion(() => {
+    gsap.set('.unete__glow',        { autoAlpha: 0, scale: 0.5 });
+    gsap.set('.unete__logo-wrap',   { autoAlpha: 0, scale: 0.55 });
+    gsap.set('.unete__title',       { autoAlpha: 0, y: 22 });
+    gsap.set('.unete__card',        { autoAlpha: 0, y: 22 });
+    gsap.set('.unete__btn',         { autoAlpha: 0, y: 22 });
+    gsap.set('.unete__footer-text', { autoAlpha: 0 });
+
+    ScrollTrigger.create({
+      trigger: '#unete',
+      start: 'top 78%',
+      once: true,
+      onEnter: () => {
+        const tl = gsap.timeline();
+        tl.to('.unete__glow',        { autoAlpha: 0.7, scale: 1, duration: 0.9, ease: 'power2.out' })
+          .to('.unete__logo-wrap',   { autoAlpha: 1, scale: 1, duration: 0.7, ease: 'back.out(2)' }, '<')
+          .to('.unete__title',       { autoAlpha: 1, y: 0, duration: 0.5 }, '-=0.2')
+          .to('.unete__card',        { autoAlpha: 1, y: 0, duration: 0.5 }, '-=0.2')
+          .to('.unete__btn',         { autoAlpha: 1, y: 0, duration: 0.4 }, '-=0.15')
+          .to('.unete__footer-text', { autoAlpha: 1, duration: 0.4 }, '-=0.1');
+      },
+    });
+  });
+</script>
 
 <style>
   .unete {

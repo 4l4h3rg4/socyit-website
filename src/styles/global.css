@@ -10,10 +10,10 @@
 /* ---- VARIABLES ---- */
 :root {
   /* Fondos */
-  --bg:              #0A0A0F;
-  --bg-card:         #12121a;
-  --bg-terminal:     #0d0d14;
-  --bg-card-hover:   #16162a;
+  --bg:              #000000;
+  --bg-card:         #0d0d18;
+  --bg-terminal:     #08080f;
+  --bg-card-hover:   #12122a;
 
   /* Marca */
   --primary:         #6366F1;
@@ -312,4 +312,52 @@ section {
 
   h1 { font-size: clamp(1.2rem, 6vw, 2rem); }
   h2 { font-size: clamp(0.9rem, 4vw, 1.4rem); }
+}
+
+/* ---- FOCUS-VISIBLE (accesibilidad teclado) ---- */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* Elimina outline por defecto solo cuando no es teclado */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ---- TOUCH TARGETS — mínimo 44px de área táctil ---- */
+.pixel-btn {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---- PREFERS-REDUCED-MOTION ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* Las clases reveal aparecen directamente sin transición */
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .animate-float,
+  .animate-glow-pulse,
+  .animate-rotate-subtle {
+    animation: none;
+  }
+
+  .glitch::before,
+  .glitch::after {
+    display: none;
+  }
 }

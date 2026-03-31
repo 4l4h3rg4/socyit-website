@@ -1,53 +1,56 @@
 ---
 // ComoFunciona.astro — Timeline vertical con 4 pasos
+import { Icon } from 'astro-icon/components';
 
 const pasos = [
   {
     numero: '01',
     titulo: 'Únete a tu división',
     descripcion: 'Elige la rama que más te apasiona: Robótica, Ciber, Software o Videojuegos.',
-    icono: '🔭',
+    icono: 'lucide:telescope',
+    colorVar: '--primary',
   },
   {
     numero: '02',
     titulo: 'Colabora entre ramas',
     descripcion: 'Las mejores ideas nacen en la intersección. Conecta con otras divisiones.',
-    icono: '🤝',
+    icono: 'lucide:handshake',
+    colorVar: '--robotica',
   },
   {
     numero: '03',
     titulo: 'Construye proyectos reales',
     descripcion: 'Convertí ideas en código, hardware o arte. Proyectos con impacto real.',
-    icono: '⚡',
+    icono: 'lucide:zap',
+    colorVar: '--software',
   },
   {
     numero: '04',
     titulo: 'Despegamos juntos',
     descripcion: 'Visibilidad, red de contactos, crecimiento profesional. Todos ganamos.',
-    icono: '🚀',
+    icono: 'lucide:rocket',
+    colorVar: '--videojuegos',
   },
 ];
 ---
 
 <section class="como-funciona">
   <div class="container">
-    <div class="como__header reveal">
+    <!-- .reveal eliminado: GSAP maneja la entrada de header y pasos -->
+    <div class="como__header">
       <span class="section-tag">// PROCESO</span>
       <h2 class="como__title">&gt; ¿Cómo funciona?_</h2>
     </div>
 
     <div class="como__timeline">
-      <!-- Línea vertical conectora -->
+      <!-- Línea vertical conectora — se dibuja con scaleY via GSAP -->
       <div class="como__connector" aria-hidden="true"></div>
 
-      {pasos.map((paso, i) => (
-        <div
-          class="como__step reveal"
-          style={`animation-delay: ${i * 0.15}s`}
-        >
+      {pasos.map((paso) => (
+        <div class="como__step">
           <!-- Ícono cuadrado -->
-          <div class="como__step-icon">
-            <span>{paso.icono}</span>
+          <div class="como__step-icon" style={`border-color: var(${paso.colorVar})`}>
+            <Icon name={paso.icono} style={`color: var(${paso.colorVar})`} />
           </div>
 
           <!-- Contenido -->
@@ -61,6 +64,38 @@ const pasos = [
     </div>
   </div>
 </section>
+
+<script>
+  // ---- GSAP: connector line draw + steps cascade ----
+  import { gsap, ScrollTrigger, withMotion } from '../../lib/gsap';
+
+  withMotion(() => {
+    gsap.set('.como__header',    { autoAlpha: 0, y: 25 });
+    // scaleY:0 + transformOrigin top = la línea "se dibuja" de arriba hacia abajo
+    gsap.set('.como__connector', { scaleY: 0, transformOrigin: 'top center' });
+    gsap.set('.como__step',      { autoAlpha: 0, x: 35 });
+
+    ScrollTrigger.create({
+      trigger: '.como__header',
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        const tl = gsap.timeline();
+
+        tl.to('.como__header',    { autoAlpha: 1, y: 0, duration: 0.5 })
+          // Conector se dibuja de arriba hacia abajo mientras aparecen los pasos
+          .to('.como__connector', { scaleY: 1, duration: 0.9, ease: 'power1.inOut' }, '-=0.2')
+          // Pasos entran desde la derecha en cascada
+          .to('.como__step', {
+            autoAlpha: 1,
+            x: 0,
+            stagger: 0.15,
+            duration: 0.5,
+          }, '-=0.65');
+      },
+    });
+  });
+</script>
 
 <style>
   .como-funciona {
@@ -124,9 +159,13 @@ const pasos = [
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
     flex-shrink: 0;
     z-index: 1;
+  }
+
+  .como__step-icon svg {
+    width: 18px;
+    height: 18px;
   }
 
   /* Contenido del paso */
@@ -171,13 +210,9 @@ const pasos = [
 
   /* Colores del borde por paso */
   .como__step:nth-child(2) .como__step-content { border-left-color: var(--robotica); }
-  .como__step:nth-child(2) .como__step-icon    { border-color: var(--robotica); }
   .como__step:nth-child(3) .como__step-content { border-left-color: var(--software); }
-  .como__step:nth-child(3) .como__step-icon    { border-color: var(--software); }
   .como__step:nth-child(4) .como__step-content { border-left-color: var(--ciber); }
-  .como__step:nth-child(4) .como__step-icon    { border-color: var(--ciber); }
   .como__step:nth-child(5) .como__step-content { border-left-color: var(--videojuegos); }
-  .como__step:nth-child(5) .como__step-icon    { border-color: var(--videojuegos); }
 
   /* ---- Responsive ---- */
   @media (max-width: 520px) {
@@ -189,6 +224,11 @@ const pasos = [
       left: -2.5rem;
       width: 34px;
       height: 34px;
+    }
+
+    .como__step-icon svg {
+      width: 15px;
+      height: 15px;
     }
   }
 </style>

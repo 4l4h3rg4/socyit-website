@@ -5,8 +5,8 @@
 <section id="sobre-nosotros" class="sobre-nosotros">
   <div class="container sobre__inner">
 
-    <!-- Terminal izquierda -->
-    <div class="sobre__terminal reveal">
+    <!-- Terminal izquierda — .reveal eliminado, GSAP maneja entrada propia -->
+    <div class="sobre__terminal">
       <div class="pixel-window">
         <!-- Barra superior -->
         <div class="pixel-window__bar">
@@ -62,13 +62,13 @@
       </div>
     </div>
 
-    <!-- Panel de estadísticas derecha -->
+    <!-- Panel de estadísticas derecha — .reveal eliminado, GSAP maneja entrada -->
     <div class="sobre__stats">
       <span class="section-tag reveal">// SOBRE NOSOTROS</span>
       <h2 class="sobre__title reveal">&gt; ¿Por qué existimos?_</h2>
 
       <div class="stats__list">
-        <div class="stat-block reveal">
+        <div class="stat-block">
           <div class="stat-block__number" style="color: var(--robotica)">4</div>
           <div class="stat-block__label">Divisiones</div>
           <div class="stat-block__desc">
@@ -76,7 +76,7 @@
           </div>
         </div>
 
-        <div class="stat-block reveal">
+        <div class="stat-block">
           <div class="stat-block__number" style="color: var(--primary)">∞</div>
           <div class="stat-block__label">Posibilidades</div>
           <div class="stat-block__desc">
@@ -84,7 +84,7 @@
           </div>
         </div>
 
-        <div class="stat-block reveal">
+        <div class="stat-block">
           <div class="stat-block__number" style="color: var(--videojuegos)">1</div>
           <div class="stat-block__label">Comunidad</div>
           <div class="stat-block__desc">
@@ -97,26 +97,50 @@
 </section>
 
 <script>
-  // Activa la animación del terminal cuando entra al viewport
-  const terminalBody = document.getElementById('terminalBody');
-  if (terminalBody) {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          terminalBody.classList.add('terminal--active');
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.3 }
-    );
-    observer.observe(terminalBody);
-  }
-
-  // Cursor parpadeante del terminal
+  // Cursor parpadeante del terminal (se mantiene independiente de GSAP)
   const cursor = document.querySelector('.terminal__cursor');
   if (cursor) {
     setInterval(() => cursor.classList.toggle('invisible'), 600);
   }
+</script>
+
+<script>
+  // ---- GSAP: reemplaza el IntersectionObserver personalizado ----
+  import { gsap, ScrollTrigger, withMotion } from '../../lib/gsap';
+
+  withMotion(() => {
+    // Estados iniciales
+    gsap.set('.sobre__terminal', { autoAlpha: 0, y: 35 });
+    gsap.set('.terminal-line',   { autoAlpha: 0, x: -10 });
+    gsap.set('.stat-block',      { autoAlpha: 0, x: 35 });
+
+    ScrollTrigger.create({
+      trigger: '.sobre__terminal',
+      start: 'top 75%',
+      once: true,
+      onEnter: () => {
+        const tl = gsap.timeline();
+
+        // Ventana terminal sube y aparece
+        tl.to('.sobre__terminal', { autoAlpha: 1, y: 0, duration: 0.5 })
+          // Líneas del terminal en stagger (como salida de comandos en terminal)
+          .to('.terminal-line', {
+            autoAlpha: 1,
+            x: 0,
+            stagger: 0.14,
+            duration: 0.3,
+            ease: 'power1.out',
+          }, '-=0.15')
+          // Stats entran desde la derecha
+          .to('.stat-block', {
+            autoAlpha: 1,
+            x: 0,
+            stagger: 0.13,
+            duration: 0.5,
+          }, '-=0.35');
+      },
+    });
+  });
 </script>
 
 <style>
@@ -143,16 +167,14 @@
     line-height: 1.8;
   }
 
-  /* Oculta las líneas hasta que el observer las active */
+  /* Estado inicial de las líneas — GSAP animará desde aquí */
   .terminal__body .terminal-line {
     opacity: 0;
     transform: translateX(-8px);
     transition: none;
   }
 
-  .terminal__body.terminal--active .terminal-line {
-    animation: terminal-line-in 0.3s ease forwards;
-  }
+  /* .terminal--active ya no se usa (era del IntersectionObserver anterior) */
 
   .terminal__prompt {
     color: var(--primary);

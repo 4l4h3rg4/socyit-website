@@ -136,17 +136,8 @@
   animation: fade-in-up 0.6s ease forwards;
 }
 
-/* Para usar con IntersectionObserver: la clase se agrega con JS */
-.reveal {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+/* .reveal — estado inicial manejado por GSAP (gsap.set autoAlpha:0).
+   No requiere CSS aquí. La clase sirve como selector para ScrollTrigger.batch. */
 
 /* ---- TYPING (typewriter del hero) ---- */
 /* Manejado por JS (typewriter.js), esta animación es para el cursor */

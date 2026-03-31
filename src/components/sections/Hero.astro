@@ -7,21 +7,21 @@
 
     <!-- Columna izquierda: texto -->
     <div class="hero__content">
-      <span class="badge reveal">COMUNIDAD TECH · EST. 2025</span>
+      <!-- .reveal eliminado: GSAP maneja la entrada con timeline de page-load -->
+      <span class="badge">COMUNIDAD TI</span>
 
       <h1
-        class="hero__title glitch reveal"
+        class="hero__title glitch"
         data-text="SocyIT"
-        style="animation-delay: 0.1s"
       >
         SocyIT
       </h1>
 
-      <div class="hero__typewriter reveal" style="animation-delay: 0.2s">
+      <div class="hero__typewriter">
         <span id="typewriter-text"></span><span class="typewriter-cursor">▋</span>
       </div>
 
-      <div class="hero__ctas reveal" style="animation-delay: 0.4s">
+      <div class="hero__ctas">
         <a href="#unete" class="pixel-btn">
           &gt; Únete ahora
         </a>
@@ -30,13 +30,13 @@
         </a>
       </div>
 
-      <p class="hero__lema reveal cursor" style="animation-delay: 0.5s">
+      <p class="hero__lema cursor">
         <span class="hero__lema-text">$ despegando juntos hacia el futuro_</span>
       </p>
     </div>
 
     <!-- Columna derecha: logo -->
-    <div class="hero__logo-wrap reveal" style="animation-delay: 0.3s">
+    <div class="hero__logo-wrap">
       <div class="hero__logo-glow"></div>
       <img
         src="/logo.svg"
@@ -87,7 +87,6 @@
       charIndex++;
 
       if (charIndex === current.length) {
-        // Pausa al terminar de escribir
         setTimeout(() => { isDeleting = true; type(); }, PAUSE_AFTER);
         return;
       }
@@ -95,8 +94,35 @@
     }
   }
 
-  // Espera un momento antes de empezar
+  // 800ms: la timeline GSAP del hero dura ~1s, el typewriter arranca cuando
+  // el elemento ya es visible — sin necesidad de coordinación explícita.
   setTimeout(type, 800);
+</script>
+
+<script>
+  // ---- GSAP: timeline de entrada (page-load, no scroll-triggered) ----
+  import { gsap, withMotion } from '../../lib/gsap';
+
+  withMotion(() => {
+    // Estado inicial: todo invisible
+    gsap.set('.badge',           { autoAlpha: 0, y: -18 });
+    gsap.set('.hero__title',     { autoAlpha: 0, x: -40 });
+    gsap.set('.hero__typewriter',{ autoAlpha: 0 });
+    gsap.set('.hero__ctas',      { autoAlpha: 0, y: 20 });
+    gsap.set('.hero__logo-wrap', { autoAlpha: 0, scale: 0.75 });
+    gsap.set('.hero__lema',      { autoAlpha: 0 });
+
+    const tl = gsap.timeline({ delay: 0.15 });
+
+    tl.to('.badge',            { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power2.out' })
+      // Título entra desde la izquierda — el efecto glitch sigue corriendo via CSS
+      .to('.hero__title',      { autoAlpha: 1, x: 0, duration: 0.55, ease: 'power3.out' }, '-=0.1')
+      .to('.hero__typewriter', { autoAlpha: 1, duration: 0.4 }, '-=0.15')
+      // Logo escala con back.out — da sensación de "aterrizaje" de nave
+      .to('.hero__logo-wrap',  { autoAlpha: 1, scale: 1, duration: 0.65, ease: 'back.out(1.7)' }, '<0.05')
+      .to('.hero__ctas',       { autoAlpha: 1, y: 0, duration: 0.4 }, '-=0.2')
+      .to('.hero__lema',       { autoAlpha: 1, duration: 0.4 }, '-=0.1');
+  });
 </script>
 
 <style>

@@ -1,8 +1,8 @@
-# SocyIT — Comunidad Tech
+# SocyIT — Comunidad TI
 
-Sitio web oficial de **SocyIT**, una comunidad IT enfocada en el apoyo mutuo entre personas de todas las ramas de la tecnología: software, ciberseguridad, robótica & IA, videojuegos y más.
+Sitio web oficial de **SocyIT**, una comunidad TI enfocada en el apoyo mutuo entre personas de todas las ramas de la tecnología: software, ciberseguridad, robótica & IA, videojuegos y más.
 
-La idea es simple: que nadie en el mundo tech tenga que avanzar solo. Nos ayudamos con proyectos, visibilidad, financiamiento, consejos, y cualquier cosa que se necesite. Las colaboraciones entre divisiones son bienvenidas y esperadas.
+La idea es simple: que nadie en el mundo TI tenga que avanzar solo. Nos ayudamos con proyectos, visibilidad, financiamiento, consejos, y cualquier cosa que se necesite. Las colaboraciones entre divisiones son bienvenidas y esperadas.
 
 ## Stack
 

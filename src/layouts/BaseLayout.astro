@@ -8,8 +8,8 @@ interface Props {
 }
 
 const {
-  title = 'SocyIT — Comunidad Tech',
-  description = 'Comunidad IT para todo el mundo tech: ciberseguridad, robótica, software, redes, IA y más. Conectamos mentes y construimos el futuro juntos.',
+  title = 'SocyIT — Comunidad TI',
+  description = 'Comunidad TI para todo el mundo tech: ciberseguridad, robótica, software, redes, IA y más. Conectamos mentes y construimos el futuro juntos.',
   ogImage = '/og-image.png',
 } = Astro.props;
 
@@ -21,7 +21,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://socyit.c
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0A0A0F" />
+    <meta name="theme-color" content="#000000" />
 
     <!-- SEO -->
     <title>{title}</title>
@@ -55,20 +55,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://socyit.c
   <body>
     <slot />
 
-    <!-- Script de reveal al hacer scroll -->
+    <!-- GSAP: animaciones de scroll (reemplaza IntersectionObserver) -->
     <script>
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('visible');
-            }
-          });
-        },
-        { threshold: 0.1 }
-      );
-
-      document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+      import '../lib/gsap';
     </script>
   </body>
 </html>

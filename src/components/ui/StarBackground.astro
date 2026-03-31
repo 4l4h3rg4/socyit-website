@@ -1,8 +1,9 @@
 ---
-// StarBackground.astro — Fondo de partículas/estrellas animadas con tsParticles
+// StarBackground.astro — Fondo de estrellas animadas optimizado para rendimiento
+// Usa @tsparticles/slim: sin links, sin hover, 30fps, soporte prefers-reduced-motion
 ---
 
-<div id="tsparticles"></div>
+<div id="tsparticles" aria-hidden="true"></div>
 
 <script>
   import { tsParticles } from '@tsparticles/engine';
@@ -11,50 +12,59 @@
   (async () => {
     await loadSlim(tsParticles);
 
-    await tsParticles.load('tsparticles', {
-      background: { color: { value: '#0A0A0F' } },
-      fpsLimit: 60,
-      interactivity: {
-        events: {
-          onHover: { enable: true, mode: 'repulse' },
-        },
-        modes: {
-          repulse: { distance: 80, duration: 0.4 },
-        },
-      },
-      particles: {
-        color: { value: ['#ffffff', '#a5b4fc', '#6366f1', '#06b6d4'] },
-        links: {
-          enable: true,
-          color: '#1e1e2d',
-          distance: 120,
-          opacity: 0.3,
-          width: 1,
-        },
-        move: {
-          enable: true,
-          speed: 0.4,
-          random: true,
-          outModes: { default: 'out' },
-        },
-        number: {
-          value: 120,
-          density: { enable: true, area: 800 },
-        },
-        opacity: {
-          value: { min: 0.2, max: 0.9 },
-          animation: {
-            enable: true,
-            speed: 0.8,
-            minimumValue: 0.1,
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    await tsParticles.load({
+      id: 'tsparticles',
+      options: {
+        background: { color: { value: '#000000' } },
+        // 30fps: las estrellas apenas se mueven, imperceptible vs 60fps
+        fpsLimit: 30,
+        // Sin interactividad = sin event listeners de mouse = ganancia de perf
+        interactivity: {
+          detectsOn: 'window',
+          events: {
+            onHover: { enable: false },
+            onClick: { enable: false },
+            resize: { enable: true },
           },
         },
-        shape: { type: 'circle' },
-        size: {
-          value: { min: 1, max: 2.5 },
+        particles: {
+          // Blanco puro + tonos liláceos suaves para coherencia con la marca
+          color: { value: ['#ffffff', '#e2e8f0', '#a5b4fc', '#c7d2fe'] },
+          // Sin links: elimina el cálculo O(n²) de distancias entre partículas
+          links: { enable: false },
+          move: {
+            enable: !prefersReducedMotion,
+            speed: 0.18,        // deriva muy lenta, como el espacio
+            random: true,
+            direction: 'none',
+            straight: false,
+            outModes: { default: 'out' },
+          },
+          number: {
+            // 70 partículas base — suficiente para una galaxia sin sobrecargar
+            value: 70,
+            density: { enable: true, area: 900 },
+          },
+          opacity: {
+            value: { min: 0.1, max: 0.85 },
+            animation: {
+              enable: !prefersReducedMotion,
+              speed: 0.4,       // titileo suave
+              sync: false,
+            },
+          },
+          shape: { type: 'circle' },
+          size: {
+            // Mezcla de estrellas pequeñas y puntos microscópicos
+            value: { min: 0.3, max: 2.2 },
+          },
         },
+        detectRetina: true,
       },
-      detectRetina: true,
     });
   })();
 </script>
@@ -64,6 +74,8 @@
     position: fixed;
     inset: 0;
     z-index: 0;
+    /* pointer-events: none evita que el canvas capture clicks/mouse,
+       mejorando rendimiento y usabilidad del contenido encima */
     pointer-events: none;
   }
 </style>
