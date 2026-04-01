@@ -15,6 +15,7 @@
     "@astrojs/vercel": "^10.0.3",
     "@iconify-json/lucide": "^1.2.100",
     "@supabase/supabase-js": "^2.100.1",
+    "@tsparticles/engine": "^3.9.1",
     "@tsparticles/slim": "^3.9.1",
     "astro": "^6.1.1",
     "astro-icon": "^1.1.5",
@@ -23,6 +24,10 @@
     "tsparticles": "^3.9.1"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["@tsparticles/engine", "esbuild", "sharp"]
+    "onlyBuiltDependencies": [
+      "@tsparticles/engine",
+      "esbuild",
+      "sharp"
+    ]
   }
 }

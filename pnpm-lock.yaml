@@ -17,6 +17,9 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.100.1
         version: 2.101.0
+      '@tsparticles/engine':
+        specifier: ^3.9.1
+        version: 3.9.1
       '@tsparticles/slim':
         specifier: ^3.9.1
         version: 3.9.1
