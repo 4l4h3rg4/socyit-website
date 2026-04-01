@@ -21,5 +21,8 @@
     "gsap": "^3.14.2",
     "nes.css": "^2.2.1",
     "tsparticles": "^3.9.1"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["@tsparticles/engine", "esbuild", "sharp"]
   }
 }

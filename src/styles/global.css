@@ -4,7 +4,7 @@
    ============================================ */
 
 @import 'nes.css/css/nes.min.css';
-/* Space Mono eliminada — sitio usa Minecraft globalmente */
+@import './animations.css';
 
 @font-face {
   font-family: 'Minecraft';
@@ -13,7 +13,6 @@
   font-style: normal;
   font-display: swap;
 }
-@import './animations.css';
 
 /* ---- VARIABLES ---- */
 :root {

@@ -25,3 +25,5 @@ build-error.txt
 
 # jetbrains setting folder
 .idea/
+
+settings.local.json
