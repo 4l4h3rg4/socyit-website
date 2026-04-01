@@ -1,86 +1,105 @@
 ---
-// Divisiones.astro — Barras horizontales de cada división (vista resumen landing)
-// Obtiene datos de Supabase en build time (SSG via hybrid mode)
+// Divisiones.astro — Grid de branches en el landing
 
+import { Icon } from 'astro-icon/components';
 import { supabase } from '../../lib/supabase';
 
 const { data } = await supabase
   .from('divisiones')
-  .select('nombre, descripcion_corta, icono, color_hex, slug')
+  .select('nombre, descripcion_corta, color_hex, slug')
   .eq('activa', true)
   .order('orden', { ascending: true });
 
-// Mapear color_hex a nombre de clase CSS
+// color_hex → clase CSS (para colores y estilos)
 const colorMap: Record<string, string> = {
   '#06b6d4': 'robotica',
   '#ef4444': 'ciber',
   '#7c3aed': 'software',
   '#f59e0b': 'videojuegos',
+  '#10b981': 'ia',
+  '#f97316': 'redes',
+};
+
+// clase CSS → ícono Lucide
+const iconMap: Record<string, string> = {
+  'robotica':    'lucide:cpu',
+  'ciber':       'lucide:shield',
+  'software':    'lucide:code-2',
+  'videojuegos': 'lucide:gamepad-2',
+  'ia':          'lucide:brain',
+  'redes':       'lucide:network',
 };
 
 const divisiones = (data ?? []).map((d) => ({
   ...d,
   colorClass: colorMap[d.color_hex] ?? 'robotica',
+  iconName:   iconMap[colorMap[d.color_hex] ?? 'robotica'] ?? 'lucide:layers',
 }));
 ---
 
 <section id="divisiones" class="divisiones">
   <div class="container">
+
+    <!-- Header -->
     <div class="divisiones__header reveal">
       <div class="divisiones__header-left">
-        <span class="section-tag">// ELIGE TU CAMINO</span>
+        <span class="section-tag">// BRANCHES</span>
         <h2 class="divisiones__title">&gt; Branches_</h2>
       </div>
       <a href="/branch" class="divisiones__link">
-        Ver todas las branches →
+        Ver todas →
       </a>
     </div>
 
-    <!-- El header usa .reveal (batch global de BaseLayout lo maneja) -->
-    <div class="divisiones__list">
+    <!-- Subtítulo explicativo -->
+    <p class="divisiones__sub reveal">
+      No tienes que elegir una sola. Puedes estar en todas las que quieras — sin restricciones.<br>
+      Participa, pide consejos, colabora y aprende en cualquier branch, cuando quieras.
+    </p>
+
+    <!-- Grid de branches -->
+    <div class="divisiones__grid">
       {divisiones.map((div) => (
         <a
           href={`/branch/${div.slug}`}
-          class={`division-bar division-bar--${div.colorClass}`}
+          class={`branch-item branch-item--${div.colorClass}`}
+          style={`--bc: var(--${div.colorClass})`}
           aria-label={`Branch ${div.nombre}`}
         >
-          <!-- Barra lateral de color -->
-          <div class="division-bar__stripe"></div>
-
-          <!-- Ícono -->
-          <div class="division-bar__icon">{div.icono}</div>
-
-          <!-- Texto -->
-          <div class="division-bar__text">
-            <span class="division-bar__nombre">{div.nombre}</span>
-            <span class="division-bar__desc">{div.descripcion_corta}</span>
+          <div class="branch-item__top">
+            <div class="branch-item__icon-wrap">
+              <Icon name={div.iconName} class="branch-item__icon" />
+            </div>
+            <span class="branch-item__name">{div.nombre}</span>
           </div>
-
-          <!-- Flecha -->
-          <div class="division-bar__arrow">→</div>
+          <p class="branch-item__desc">{div.descripcion_corta}</p>
+          <span class="branch-item__cta">
+            Explorar
+            <Icon name="lucide:arrow-right" class="branch-item__arrow" />
+          </span>
         </a>
       ))}
     </div>
+
   </div>
 </section>
 
 <script>
-  // ---- GSAP: barras de división entran desde la izquierda con stagger ----
   import { gsap, ScrollTrigger, withMotion } from '../../lib/gsap';
 
   withMotion(() => {
-    gsap.set('.division-bar', { autoAlpha: 0, x: -45 });
+    gsap.set('.branch-item', { autoAlpha: 0, y: 30 });
 
     ScrollTrigger.create({
-      trigger: '.divisiones__list',
+      trigger: '.divisiones__grid',
       start: 'top 82%',
       once: true,
       onEnter: () => {
-        gsap.to('.division-bar', {
+        gsap.to('.branch-item', {
           autoAlpha: 1,
-          x: 0,
-          stagger: 0.1,
-          duration: 0.45,
+          y: 0,
+          stagger: 0.08,
+          duration: 0.5,
           ease: 'power2.out',
         });
       },
@@ -94,11 +113,12 @@ const divisiones = (data ?? []).map((d) => ({
     z-index: 10;
   }
 
+  /* ---- Header ---- */
   .divisiones__header {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    margin-bottom: 2rem;
+    margin-bottom: 0.75rem;
     flex-wrap: wrap;
     gap: 1rem;
   }
@@ -118,118 +138,138 @@ const divisiones = (data ?? []).map((d) => ({
     white-space: nowrap;
   }
 
-  .divisiones__link:hover {
-    color: var(--text);
+  .divisiones__link:hover { color: var(--text); }
+
+  /* ---- Subtítulo ---- */
+  .divisiones__sub {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.75;
+    margin-bottom: 2rem;
+    max-width: 600px;
   }
 
-  .divisiones__list {
+  /* ---- Grid ---- */
+  .divisiones__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  /* ---- Branch card ---- */
+  .branch-item {
     display: flex;
     flex-direction: column;
+    gap: 0.65rem;
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-top: 3px solid var(--bc);
+    padding: 1.25rem;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  }
+
+  .branch-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--bc);
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+
+  .branch-item:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--bc);
+    transform: translateY(-2px);
+  }
+
+  .branch-item:hover::before { opacity: 0.04; }
+
+  /* Top row: icon + name */
+  .branch-item__top {
+    display: flex;
+    align-items: center;
     gap: 0.75rem;
   }
 
-  /* ---- Barra de división ---- */
-  .division-bar {
-    display: grid;
-    grid-template-columns: 4px 52px 1fr auto;
-    align-items: center;
-    gap: 1rem;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    padding: 1.1rem 1.25rem 1.1rem 0;
-    text-decoration: none;
-    color: inherit;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
-  }
-
-  .division-bar:hover {
-    transform: translateX(6px);
-    background: var(--bg-card-hover);
-  }
-
-  /* Color de borde según división */
-  .division-bar--robotica:hover    { border-color: var(--robotica); }
-  .division-bar--ciber:hover       { border-color: var(--ciber); }
-  .division-bar--software:hover    { border-color: var(--software); }
-  .division-bar--videojuegos:hover { border-color: var(--videojuegos); }
-
-  /* Barra lateral de color */
-  .division-bar__stripe {
-    width: 4px;
-    align-self: stretch;
+  .branch-item__icon-wrap {
+    width: 40px;
+    height: 40px;
     flex-shrink: 0;
-  }
-
-  .division-bar--robotica    .division-bar__stripe { background: var(--robotica); }
-  .division-bar--ciber       .division-bar__stripe { background: var(--ciber); }
-  .division-bar--software    .division-bar__stripe { background: var(--software); }
-  .division-bar--videojuegos .division-bar__stripe { background: var(--videojuegos); }
-
-  /* Ícono */
-  .division-bar__icon {
-    font-size: 1.6rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 48px;
-    height: 48px;
-    background: rgba(255,255,255,0.04);
+    background: color-mix(in srgb, var(--bc) 15%, var(--bg-card));
+    border: 2px solid color-mix(in srgb, var(--bc) 40%, transparent);
+  }
+
+  .branch-item__icon {
+    width: 20px;
+    height: 20px;
+    color: var(--bc);
     flex-shrink: 0;
   }
 
-  /* Texto */
-  .division-bar__text {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    min-width: 0;
-  }
-
-  .division-bar__nombre {
+  .branch-item__name {
     font-family: var(--font-pixel);
-    font-size: 0.6rem;
-    color: var(--text);
-    display: block;
+    font-size: clamp(0.45rem, 1.2vw, 0.6rem);
+    color: var(--bc);
+    line-height: 1.5;
   }
 
-  .division-bar--robotica    .division-bar__nombre { color: var(--robotica); }
-  .division-bar--ciber       .division-bar__nombre { color: var(--ciber); }
-  .division-bar--software    .division-bar__nombre { color: var(--software); }
-  .division-bar--videojuegos .division-bar__nombre { color: var(--videojuegos); }
-
-  .division-bar__desc {
+  /* Description */
+  .branch-item__desc {
     font-family: var(--font-mono);
     font-size: 0.78rem;
     color: var(--text-muted);
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1.65;
+    flex: 1;
   }
 
-  /* Flecha */
-  .division-bar__arrow {
-    font-family: var(--font-mono);
-    font-size: 1.2rem;
-    color: var(--text-dim);
-    padding-right: 0.5rem;
-    transition: color 0.25s, transform 0.25s;
+  /* CTA row */
+  .branch-item__cta {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-pixel);
+    font-size: 0.4rem;
+    color: var(--bc);
+    opacity: 0.7;
+    transition: opacity 0.2s, gap 0.2s;
+    margin-top: auto;
   }
 
-  .division-bar:hover .division-bar__arrow {
-    color: var(--primary);
-    transform: translateX(4px);
+  .branch-item:hover .branch-item__cta {
+    opacity: 1;
+    gap: 0.55rem;
+  }
+
+  .branch-item__arrow {
+    width: 12px;
+    height: 12px;
+    transition: transform 0.2s;
+  }
+
+  .branch-item:hover .branch-item__arrow {
+    transform: translateX(3px);
   }
 
   /* ---- Responsive ---- */
-  @media (max-width: 520px) {
-    .division-bar__desc { display: none; }
+  @media (max-width: 640px) {
+    .divisiones__grid {
+      grid-template-columns: 1fr;
+    }
+  }
 
-    .division-bar {
-      grid-template-columns: 4px 44px 1fr auto;
+  @media (min-width: 900px) {
+    .divisiones__grid {
+      grid-template-columns: repeat(3, 1fr);
     }
   }
 </style>

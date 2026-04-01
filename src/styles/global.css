@@ -29,7 +29,7 @@
   --primary-glow:    rgba(99, 102, 241, 0.35);
   --primary-glow-sm: rgba(99, 102, 241, 0.15);
 
-  /* Divisiones */
+  /* Branches */
   --robotica:        #06b6d4;
   --robotica-glow:   rgba(6, 182, 212, 0.3);
   --ciber:           #ef4444;
@@ -38,6 +38,10 @@
   --software-glow:   rgba(124, 58, 237, 0.3);
   --videojuegos:     #f59e0b;
   --videojuegos-glow:rgba(245, 158, 11, 0.3);
+  --ia:              #10b981;
+  --ia-glow:         rgba(16, 185, 129, 0.3);
+  --redes:           #f97316;
+  --redes-glow:      rgba(249, 115, 22, 0.3);
 
   /* Texto */
   --text:            #e2e8f0;
