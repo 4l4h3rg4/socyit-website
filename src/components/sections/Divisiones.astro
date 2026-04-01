@@ -29,10 +29,10 @@ const divisiones = (data ?? []).map((d) => ({
     <div class="divisiones__header reveal">
       <div class="divisiones__header-left">
         <span class="section-tag">// ELIGE TU CAMINO</span>
-        <h2 class="divisiones__title">&gt; Divisiones_</h2>
+        <h2 class="divisiones__title">&gt; Branches_</h2>
       </div>
-      <a href="/divisiones" class="divisiones__link">
-        Ver detalle completo →
+      <a href="/branch" class="divisiones__link">
+        Ver todas las branches →
       </a>
     </div>
 
@@ -40,9 +40,9 @@ const divisiones = (data ?? []).map((d) => ({
     <div class="divisiones__list">
       {divisiones.map((div) => (
         <a
-          href="/divisiones"
+          href={`/branch/${div.slug}`}
           class={`division-bar division-bar--${div.colorClass}`}
-          aria-label={`División ${div.nombre}`}
+          aria-label={`Branch ${div.nombre}`}
         >
           <!-- Barra lateral de color -->
           <div class="division-bar__stripe"></div>

@@ -1,0 +1,653 @@
+---
+// pages/branch/[slug].astro — Página de detalle de una branch individual
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import StarBackground from '../../components/ui/StarBackground.astro';
+import Navbar from '../../components/layout/Navbar.astro';
+import Footer from '../../components/layout/Footer.astro';
+import { supabase } from '../../lib/supabase';
+import type { Division } from '../../types';
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+
+const { data: branchRaw } = await supabase
+  .from('divisiones')
+  .select('*, lider:lideres(*)')
+  .eq('slug', slug)
+  .eq('activa', true)
+  .single();
+
+if (!branchRaw) {
+  return Astro.redirect('/branch');
+}
+
+const branch = branchRaw as Division;
+
+const { data: proyectosRaw } = await supabase
+  .from('proyectos')
+  .select('*')
+  .eq('division_id', branch.id)
+  .eq('activo', true)
+  .order('creado_en', { ascending: false });
+
+const proyectos = proyectosRaw ?? [];
+
+const whatsappUrl = import.meta.env.PUBLIC_WHATSAPP_URL ?? '#';
+
+const estadoLabel: Record<string, { label: string; color: string }> = {
+  idea:        { label: '// idea',        color: 'var(--videojuegos)' },
+  en_progreso: { label: '// en progreso', color: 'var(--robotica)' },
+  completado:  { label: '// completado',  color: 'var(--primary)' },
+};
+---
+
+<BaseLayout
+  title={`${branch.nombre} — SocyIT`}
+  description={branch.descripcion_corta}
+>
+  <StarBackground />
+  <Navbar />
+
+  <main class="branch-page" style={`--branch-color: ${branch.color_hex}`}>
+    <div class="container">
+
+      <!-- Back link -->
+      <a href="/branch" class="bp__back">← cd ../branch</a>
+
+      <!-- ─── HERO ─── -->
+      <header class="bp__hero">
+        <div class="bp__hero-icon">{branch.icono}</div>
+        <div class="bp__hero-content">
+          <span class="section-tag">// BRANCH</span>
+          <h1 class="bp__hero-title">{branch.nombre}</h1>
+          <p class="bp__hero-sub">{branch.descripcion_corta}</p>
+          {branch.tags && branch.tags.length > 0 && (
+            <div class="bp__tags">
+              {branch.tags.map((tag: string) => (
+                <span class="bp__tag">{tag}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      </header>
+
+      <!-- ─── ABOUT ─── -->
+      {(branch.descripcion_extendida || branch.sobre_division) && (
+        <div class="pixel-window bp__window reveal">
+          <div class="pixel-window__bar">
+            <div class="pixel-window__dots">
+              <div class="pixel-window__dot pixel-window__dot--red"></div>
+              <div class="pixel-window__dot pixel-window__dot--yellow"></div>
+              <div class="pixel-window__dot pixel-window__dot--green"></div>
+            </div>
+            <span class="pixel-window__title">sobre.md</span>
+          </div>
+          <div class="pixel-window__body bp__about-body">
+            {branch.descripcion_extendida && (
+              <div class="bp__terminal-block">
+                <span class="bp__prompt">$ cat descripcion.txt</span>
+                <p class="bp__about-text">{branch.descripcion_extendida}</p>
+              </div>
+            )}
+            {branch.sobre_division && (
+              <div class="bp__terminal-block">
+                <span class="bp__prompt">$ cat sobre_branch.txt</span>
+                <p class="bp__about-text">{branch.sobre_division}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <!-- ─── LEADER ─── -->
+      <div class="pixel-window bp__window reveal">
+        <div class="pixel-window__bar">
+          <div class="pixel-window__dots">
+            <div class="pixel-window__dot pixel-window__dot--red"></div>
+            <div class="pixel-window__dot pixel-window__dot--yellow"></div>
+            <div class="pixel-window__dot pixel-window__dot--green"></div>
+          </div>
+          <span class="pixel-window__title">lider.json</span>
+        </div>
+        <div class="pixel-window__body bp__leader-body">
+          {branch.lider ? (
+            <div class="bp__leader">
+              <div class="bp__leader-avatar">
+                {branch.lider.foto_url ? (
+                  <img
+                    src={branch.lider.foto_url}
+                    alt={`Foto de ${branch.lider.nombre}`}
+                    width="96"
+                    height="96"
+                    class="bp__leader-img"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="bp__leader-placeholder">👤</div>
+                )}
+              </div>
+              <div class="bp__leader-info">
+                <span class="bp__leader-label">// Líder de branch</span>
+                <strong class="bp__leader-name">{branch.lider.nombre}</strong>
+                <span class="bp__leader-role">{branch.lider.rol}</span>
+                {branch.lider.contexto && (
+                  <p class="bp__leader-bio">{branch.lider.contexto}</p>
+                )}
+                <div class="bp__leader-links">
+                  {branch.lider.github_url && (
+                    <a href={branch.lider.github_url} target="_blank" rel="noopener" class="bp__leader-link">
+                      GitHub →
+                    </a>
+                  )}
+                  {branch.lider.linkedin_url && (
+                    <a href={branch.lider.linkedin_url} target="_blank" rel="noopener" class="bp__leader-link">
+                      LinkedIn →
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p class="bp__no-leader">// Branch leader coming soon<span class="loading-dots"></span></p>
+          )}
+        </div>
+      </div>
+
+      <!-- ─── PROJECTS ─── -->
+      <section class="bp__section reveal">
+        <h2 class="bp__section-title">&gt; Proyectos_</h2>
+        {proyectos.length === 0 ? (
+          <div class="bp__empty-terminal">
+            <p class="bp__log-line">
+              <span class="bp__prompt-green">$ </span>
+              <span>loading projects<span class="loading-dots"></span></span>
+            </p>
+            <p class="bp__log-line bp__log-comment">// ¿Tenés una idea? Únete y cuéntanos.</p>
+          </div>
+        ) : (
+          <ul class="bp__projects">
+            {proyectos.map((p: any) => {
+              const estado = estadoLabel[p.estado] ?? { label: p.estado, color: 'var(--text-muted)' };
+              return (
+                <li class="bp__project-card">
+                  <div class="bp__project-bar"></div>
+                  <div class="bp__project-body">
+                    <div class="bp__project-top">
+                      <span class="bp__project-estado" style={`color: ${estado.color}`}>{estado.label}</span>
+                    </div>
+                    <h3 class="bp__project-name">{p.nombre}</h3>
+                    <p class="bp__project-desc">{p.descripcion}</p>
+                    {p.link && (
+                      <a href={p.link} target="_blank" rel="noopener noreferrer" class="bp__project-link">
+                        ver proyecto →
+                      </a>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+
+      <!-- ─── ROADMAP ─── -->
+      {branch.planes && branch.planes.length > 0 && (
+        <div class="pixel-window bp__window reveal">
+          <div class="pixel-window__bar">
+            <div class="pixel-window__dots">
+              <div class="pixel-window__dot pixel-window__dot--red"></div>
+              <div class="pixel-window__dot pixel-window__dot--yellow"></div>
+              <div class="pixel-window__dot pixel-window__dot--green"></div>
+            </div>
+            <span class="pixel-window__title">roadmap.md</span>
+          </div>
+          <div class="pixel-window__body bp__roadmap-body">
+            <span class="bp__prompt">$ cat roadmap.md</span>
+            <ol class="bp__roadmap">
+              {branch.planes.map((plan: string, i: number) => (
+                <li class="bp__roadmap-item">
+                  <span class="bp__roadmap-num">{String(i + 1).padStart(2, '0')}</span>
+                  <span class="bp__roadmap-text">{plan}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      )}
+
+      <!-- ─── SUPPORT / JOIN ─── -->
+      <section class="bp__support reveal">
+        <div class="bp__support-card">
+          {branch.como_apoyamos && (
+            <div class="bp__support-block">
+              <h2 class="bp__support-title">&gt; ¿Cómo nos apoyamos?_</h2>
+              <p class="bp__support-text">{branch.como_apoyamos}</p>
+            </div>
+          )}
+          <div class="bp__support-cta">
+            <h2 class="bp__support-join">&gt; Únete a {branch.nombre}_</h2>
+            <p class="bp__support-sub">Un solo clic. Empieza hoy mismo.</p>
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="pixel-btn pixel-btn--whatsapp"
+            >
+              &gt; Unirme por WhatsApp_
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<script>
+  import { gsap, withMotion } from '../../lib/gsap';
+
+  withMotion(() => {
+    gsap.set('.bp__back',  { autoAlpha: 0, x: -15 });
+    gsap.set('.bp__hero',  { autoAlpha: 0, y: -25 });
+
+    const tl = gsap.timeline({ delay: 0.1 });
+    tl.to('.bp__back', { autoAlpha: 1, x: 0, duration: 0.4 })
+      .to('.bp__hero', { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.15');
+  });
+</script>
+
+<style>
+  .branch-page {
+    padding-top: 4rem;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* ─── Back link ─── */
+  .bp__back {
+    display: inline-block;
+    font-family: var(--font-pixel);
+    font-size: 0.5rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    margin-bottom: 2rem;
+  }
+
+  .bp__back:hover { color: var(--primary); }
+
+  /* ─── HERO ─── */
+  .bp__hero {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    margin-bottom: 2.5rem;
+  }
+
+  .bp__hero-icon {
+    width: 96px;
+    height: 96px;
+    background: color-mix(in srgb, var(--branch-color) 15%, var(--bg-card));
+    border: 2px solid var(--branch-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.75rem;
+    flex-shrink: 0;
+  }
+
+  .bp__hero-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding-top: 0.25rem;
+  }
+
+  .bp__hero-title {
+    font-family: var(--font-pixel);
+    font-size: clamp(0.8rem, 3vw, 1.5rem);
+    color: var(--branch-color);
+    line-height: 1.4;
+  }
+
+  .bp__hero-sub {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  .bp__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.25rem;
+  }
+
+  .bp__tag {
+    font-family: var(--font-pixel);
+    font-size: 0.38rem;
+    color: var(--branch-color);
+    border: 1px solid var(--branch-color);
+    padding: 0.2rem 0.5rem;
+    background: color-mix(in srgb, var(--branch-color) 10%, transparent);
+  }
+
+  /* ─── Windows ─── */
+  .bp__window { margin-bottom: 2rem; }
+
+  /* About */
+  .bp__about-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.5rem;
+  }
+
+  .bp__terminal-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .bp__prompt {
+    font-family: var(--font-pixel);
+    font-size: 0.42rem;
+    color: var(--primary);
+  }
+
+  .bp__about-text {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--branch-color);
+  }
+
+  /* Leader */
+  .bp__leader-body { padding: 1.5rem; }
+
+  .bp__leader {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+
+  .bp__leader-img {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+    border: 2px solid var(--branch-color);
+    flex-shrink: 0;
+  }
+
+  .bp__leader-placeholder {
+    width: 96px;
+    height: 96px;
+    background: var(--bg-card);
+    border: 2px solid var(--branch-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    flex-shrink: 0;
+  }
+
+  .bp__leader-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .bp__leader-label {
+    font-family: var(--font-pixel);
+    font-size: 0.4rem;
+    color: var(--branch-color);
+    letter-spacing: 0.1em;
+  }
+
+  .bp__leader-name {
+    font-family: var(--font-pixel);
+    font-size: 0.6rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .bp__leader-role {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  .bp__leader-bio {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-top: 0.25rem;
+  }
+
+  .bp__leader-links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .bp__leader-link {
+    font-family: var(--font-pixel);
+    font-size: 0.42rem;
+    color: var(--branch-color);
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  .bp__leader-link:hover { opacity: 0.7; }
+
+  .bp__no-leader {
+    font-family: var(--font-pixel);
+    font-size: 0.45rem;
+    color: var(--text-dim);
+    padding: 1rem;
+  }
+
+  /* ─── Projects ─── */
+  .bp__section { margin-bottom: 2rem; }
+
+  .bp__section-title {
+    font-family: var(--font-pixel);
+    font-size: clamp(0.6rem, 2vw, 0.9rem);
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+
+  .bp__empty-terminal {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .bp__log-line { color: var(--text-muted); }
+  .bp__log-comment { color: var(--text-dim); font-style: italic; }
+  .bp__prompt-green { color: var(--primary); font-weight: 700; }
+
+  .bp__projects {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .bp__project-card {
+    display: grid;
+    grid-template-columns: 3px 1fr;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .bp__project-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--branch-color);
+  }
+
+  .bp__project-bar {
+    background: var(--branch-color);
+    width: 3px;
+  }
+
+  .bp__project-body {
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .bp__project-top { display: flex; align-items: center; }
+
+  .bp__project-estado {
+    font-family: var(--font-pixel);
+    font-size: 0.38rem;
+  }
+
+  .bp__project-name {
+    font-family: var(--font-pixel);
+    font-size: 0.52rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .bp__project-desc {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  .bp__project-link {
+    font-family: var(--font-pixel);
+    font-size: 0.4rem;
+    color: var(--branch-color);
+    text-decoration: none;
+    align-self: flex-start;
+    transition: opacity 0.2s;
+  }
+
+  .bp__project-link:hover { opacity: 0.7; }
+
+  /* ─── Roadmap ─── */
+  .bp__roadmap-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .bp__roadmap {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .bp__roadmap-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .bp__roadmap-num {
+    font-family: var(--font-pixel);
+    font-size: 0.45rem;
+    color: var(--branch-color);
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+  }
+
+  .bp__roadmap-text {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* ─── Support ─── */
+  .bp__support { margin-bottom: 3rem; }
+
+  .bp__support-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--branch-color);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+
+  .bp__support-block {
+    border-left: 2px solid var(--branch-color);
+    padding-left: 1rem;
+  }
+
+  .bp__support-title {
+    font-family: var(--font-pixel);
+    font-size: 0.52rem;
+    color: var(--branch-color);
+    margin-bottom: 0.75rem;
+  }
+
+  .bp__support-text {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  .bp__support-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: center;
+  }
+
+  .bp__support-join {
+    font-family: var(--font-pixel);
+    font-size: clamp(0.6rem, 2vw, 0.9rem);
+    color: var(--text);
+  }
+
+  .bp__support-sub {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    color: var(--text-muted);
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 600px) {
+    .bp__hero {
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .bp__leader {
+      flex-direction: column;
+    }
+
+    .bp__leader-img,
+    .bp__leader-placeholder {
+      width: 72px;
+      height: 72px;
+    }
+  }
+</style>

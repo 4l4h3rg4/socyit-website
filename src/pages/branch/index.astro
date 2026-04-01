@@ -1,0 +1,327 @@
+---
+// pages/branch/index.astro — Lista de branches (reemplaza /divisiones)
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import StarBackground from '../../components/ui/StarBackground.astro';
+import Navbar from '../../components/layout/Navbar.astro';
+import Footer from '../../components/layout/Footer.astro';
+import { supabase } from '../../lib/supabase';
+
+export const prerender = false;
+
+const whatsappUrl = import.meta.env.PUBLIC_WHATSAPP_URL ?? '#';
+
+const { data } = await supabase
+  .from('divisiones')
+  .select('nombre, slug, descripcion_corta, icono, color_hex, tags')
+  .eq('activa', true)
+  .order('orden', { ascending: true });
+
+const branches = data ?? [];
+
+const colorMap: Record<string, string> = {
+  '#06b6d4': 'robotica',
+  '#ef4444': 'ciber',
+  '#7c3aed': 'software',
+  '#f59e0b': 'videojuegos',
+};
+---
+
+<BaseLayout
+  title="Branches — SocyIT"
+  description="Conocé las branches de SocyIT: Robótica & IA, Ciberseguridad, Desarrollo de Software y Videojuegos. Cada una con su propio equipo, líder y proyectos."
+>
+  <StarBackground />
+  <Navbar />
+
+  <main class="branch-list-page">
+    <div class="container">
+
+      <!-- Header -->
+      <header class="bl__header">
+        <a href="/" class="bl__back">← cd ../inicio</a>
+        <span class="section-tag">// ELIGE TU CAMINO</span>
+        <h1 class="bl__title glow-text">&gt; Branches_</h1>
+        <p class="bl__sub">
+          Cada branch es un equipo especializado.<br>
+          Al unirte tendrás acceso libre a todas.
+        </p>
+      </header>
+
+      <!-- Grid de branches -->
+      {branches.length === 0 ? (
+        <div class="bl__empty">
+          <p class="bl__empty-line">
+            <span class="bl__prompt">$ </span>
+            <span>loading branches<span class="loading-dots"></span></span>
+          </p>
+        </div>
+      ) : (
+        <div class="bl__grid">
+          {branches.map((branch) => {
+            const colorClass = colorMap[branch.color_hex] ?? 'robotica';
+            return (
+              <a
+                href={`/branch/${branch.slug}`}
+                class={`branch-card branch-card--${colorClass}`}
+                style={`--branch-color: ${branch.color_hex}`}
+                aria-label={`Branch ${branch.nombre}`}
+              >
+                <div class="branch-card__stripe"></div>
+                <div class="branch-card__body">
+                  <div class="branch-card__top">
+                    <div class="branch-card__icon-box">
+                      <span class="branch-card__icon">{branch.icono}</span>
+                    </div>
+                    <div class="branch-card__meta">
+                      <span class="branch-card__name">{branch.nombre}</span>
+                      {branch.tags && branch.tags.length > 0 && (
+                        <div class="branch-card__tags">
+                          {branch.tags.map((tag: string) => (
+                            <span class="branch-card__tag">{tag}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <p class="branch-card__desc">{branch.descripcion_corta}</p>
+                  <span class="branch-card__cta">Ver branch →</span>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      )}
+
+      <!-- CTA final -->
+      <div class="bl__join reveal">
+        <div class="bl__join-card">
+          <h2 class="bl__join-title">&gt; ¿Listo para unirte?_</h2>
+          <p class="bl__join-sub">Un solo clic. Acceso a todas las branches.</p>
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="pixel-btn pixel-btn--whatsapp"
+          >
+            &gt; Unirme por WhatsApp_
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <Footer />
+</BaseLayout>
+
+<script>
+  import { gsap, withMotion } from '../../lib/gsap';
+
+  withMotion(() => {
+    gsap.set('.bl__header', { autoAlpha: 0, y: -20 });
+    gsap.set('.branch-card', { autoAlpha: 0, y: 30 });
+
+    const tl = gsap.timeline({ delay: 0.1 });
+    tl.to('.bl__header', { autoAlpha: 1, y: 0, duration: 0.5 })
+      .to('.branch-card', {
+        autoAlpha: 1,
+        y: 0,
+        stagger: 0.12,
+        duration: 0.5,
+        ease: 'power2.out',
+      }, '-=0.2');
+  });
+</script>
+
+<style>
+  .branch-list-page {
+    padding-top: 4rem;
+    position: relative;
+    z-index: 10;
+  }
+
+  /* ---- Header ---- */
+  .bl__header {
+    margin-bottom: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .bl__back {
+    font-family: var(--font-pixel);
+    font-size: 0.5rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    align-self: flex-start;
+  }
+
+  .bl__back:hover { color: var(--primary); }
+
+  .bl__title {
+    font-family: var(--font-pixel);
+    font-size: clamp(1.2rem, 5vw, 2.5rem);
+    margin-top: 0.25rem;
+  }
+
+  .bl__sub {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  /* ---- Empty ---- */
+  .bl__empty {
+    padding: 3rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .bl__prompt {
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  /* ---- Grid ---- */
+  .bl__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 3rem;
+  }
+
+  /* ---- Branch card ---- */
+  .branch-card {
+    display: grid;
+    grid-template-columns: 4px 1fr;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+    transition: border-color 0.25s, background 0.25s, transform 0.25s;
+  }
+
+  .branch-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--branch-color);
+    transform: translateY(-3px);
+  }
+
+  .branch-card__stripe {
+    background: var(--branch-color);
+    width: 4px;
+    align-self: stretch;
+  }
+
+  .branch-card__body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .branch-card__top {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .branch-card__icon-box {
+    width: 52px;
+    height: 52px;
+    background: color-mix(in srgb, var(--branch-color) 15%, var(--bg-card));
+    border: 2px solid var(--branch-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .branch-card__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-width: 0;
+  }
+
+  .branch-card__name {
+    font-family: var(--font-pixel);
+    font-size: clamp(0.5rem, 1.5vw, 0.7rem);
+    color: var(--branch-color);
+    line-height: 1.5;
+    display: block;
+  }
+
+  .branch-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+
+  .branch-card__tag {
+    font-family: var(--font-pixel);
+    font-size: 0.35rem;
+    color: var(--branch-color);
+    border: 1px solid var(--branch-color);
+    padding: 0.15rem 0.4rem;
+    background: color-mix(in srgb, var(--branch-color) 10%, transparent);
+  }
+
+  .branch-card__desc {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    flex: 1;
+  }
+
+  .branch-card__cta {
+    font-family: var(--font-pixel);
+    font-size: 0.4rem;
+    color: var(--branch-color);
+    align-self: flex-start;
+    transition: opacity 0.2s;
+  }
+
+  .branch-card:hover .branch-card__cta { opacity: 0.75; }
+
+  /* ---- Join CTA ---- */
+  .bl__join { margin-bottom: 3rem; }
+
+  .bl__join-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--primary);
+    padding: 2.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .bl__join-title {
+    font-family: var(--font-pixel);
+    font-size: clamp(0.7rem, 2vw, 1rem);
+    color: var(--text);
+  }
+
+  .bl__join-sub {
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 640px) {
+    .bl__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

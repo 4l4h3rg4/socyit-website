@@ -15,6 +15,10 @@ export interface Division {
   creada_en: string;
   actualizada_en: string;
   lider?: Lider;
+  // Future DB columns (add via Supabase dashboard when ready)
+  recursos?: { titulo: string; url: string; tipo: string }[];
+  logros?: { titulo: string; descripcion: string }[];
+  roles_abiertos?: string[];
 }
 
 export interface Lider {

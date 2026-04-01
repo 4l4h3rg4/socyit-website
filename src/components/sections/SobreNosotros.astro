@@ -1,14 +1,17 @@
 ---
-// SobreNosotros.astro — Terminal animada + panel de estadísticas
+// SobreNosotros.astro — Terminal animada + explicación de la comunidad
 ---
 
 <section id="sobre-nosotros" class="sobre-nosotros">
+  <div class="bg-glow bg-glow--1"></div>
+  <div class="bg-glow bg-glow--2"></div>
+
   <div class="container sobre__inner">
 
-    <!-- Terminal izquierda — .reveal eliminado, GSAP maneja entrada propia -->
-    <div class="sobre__terminal">
-      <div class="pixel-window">
-        <!-- Barra superior -->
+    <!-- Terminal izquierda -->
+    <div class="sobre__terminal-wrapper">
+      <div class="terminal-glow"></div>
+      <div class="pixel-window modern-terminal">
         <div class="pixel-window__bar">
           <div class="pixel-window__dots">
             <div class="pixel-window__dot pixel-window__dot--red"></div>
@@ -18,25 +21,24 @@
           <span class="pixel-window__title">socyit@terminal ~ $</span>
         </div>
 
-        <!-- Cuerpo terminal -->
         <div class="pixel-window__body terminal__body" id="terminalBody">
-          <div class="terminal-line">
+          <div class="terminal-line typing-line">
             <span class="terminal__prompt">$ </span>
-            <span class="terminal__cmd">cat mission.txt</span>
+            <span class="terminal__cmd" data-text="cat mission.txt"></span>
           </div>
-          <div class="terminal-line terminal__output">
-            &gt; Somos una comunidad donde el conocimiento IT no tiene<br>
-            &nbsp;&nbsp;fronteras. Desde ciberseguridad hasta robótica,<br>
-            &nbsp;&nbsp;todos tienen un lugar acá.
+          <div class="terminal-line terminal__output" style="display: none;">
+            &gt; Nacimos porque aprender solo es lento<br>
+            &nbsp;&nbsp;y construir solo es difícil. SocyIT<br>
+            &nbsp;&nbsp;existe para cambiar eso.
           </div>
 
           <div class="terminal-line terminal__spacer"></div>
 
-          <div class="terminal-line">
+          <div class="terminal-line typing-line" style="display: none;">
             <span class="terminal__prompt">$ </span>
-            <span class="terminal__cmd">cat solution.txt</span>
+            <span class="terminal__cmd" data-text="cat solution.txt"></span>
           </div>
-          <div class="terminal-line terminal__output">
+          <div class="terminal-line terminal__output" style="display: none;">
             &gt; Unimos personas apasionadas por la tecnología,<br>
             &nbsp;&nbsp;les damos un espacio para colaborar, aprender<br>
             &nbsp;&nbsp;y construir proyectos reales juntas.
@@ -44,17 +46,17 @@
 
           <div class="terminal-line terminal__spacer"></div>
 
-          <div class="terminal-line">
+          <div class="terminal-line typing-line" style="display: none;">
             <span class="terminal__prompt">$ </span>
-            <span class="terminal__cmd">cat vision.txt</span>
+            <span class="terminal__cmd" data-text="cat vision.txt"></span>
           </div>
-          <div class="terminal-line terminal__output">
+          <div class="terminal-line terminal__output" style="display: none;">
             &gt; Ser la comunidad de referencia para toda persona<br>
             &nbsp;&nbsp;que quiera crecer profesionalmente en el mundo IT<br>
             &nbsp;&nbsp;de Latinoamérica y más allá.
           </div>
 
-          <div class="terminal-line">
+          <div class="terminal-line terminal-final-prompt" style="display: none;">
             <span class="terminal__prompt">$ </span>
             <span class="terminal__cursor">▋</span>
           </div>
@@ -62,207 +64,221 @@
       </div>
     </div>
 
-    <!-- Panel de estadísticas derecha — .reveal eliminado, GSAP maneja entrada -->
-    <div class="sobre__stats">
+    <!-- Panel de texto derecha -->
+    <div class="sobre__content">
       <span class="section-tag reveal">// SOBRE NOSOTROS</span>
-      <h2 class="sobre__title reveal">&gt; ¿Por qué existimos?_</h2>
+      <h2 class="sobre__title reveal">&gt; ¿Por qué <span class="gradient-text">existimos?_</span></h2>
 
-      <div class="stats__list">
-        <div class="stat-block">
-          <div class="stat-block__number" style="color: var(--robotica)">4</div>
-          <div class="stat-block__label">Divisiones</div>
-          <div class="stat-block__desc">
-            Robótica & IA, Ciberseguridad, Software y Videojuegos
-          </div>
-        </div>
+      <p class="sobre__lead">
+        Hay miles de tutoriales en internet. Pero cuando tu proyecto no avanza, los tutoriales no ayudan — la gente sí.
+      </p>
 
-        <div class="stat-block">
-          <div class="stat-block__number" style="color: var(--primary)">∞</div>
-          <div class="stat-block__label">Posibilidades</div>
-          <div class="stat-block__desc">
-            Proyectos, colaboraciones, aprendizaje sin límites
-          </div>
-        </div>
+      <p class="sobre__body">
+        SocyIT es una comunidad tech donde el foco no está en consumir contenido, sino en hacer cosas. Reunimos personas apasionadas por distintas áreas de la tecnología — robótica, software, ciberseguridad, videojuegos — y les damos un espacio real para colaborar, resolver dudas concretas y construir proyectos que importan.
+      </p>
 
-        <div class="stat-block">
-          <div class="stat-block__number" style="color: var(--videojuegos)">1</div>
-          <div class="stat-block__label">Comunidad</div>
-          <div class="stat-block__desc">
-            Un solo espacio para todo el mundo IT
-          </div>
-        </div>
-      </div>
+      <p class="sobre__body">
+        No importa en qué punto estás. Ya sea que tengas una idea sin saber por dónde empezar, o que tengas experiencia y quieras aportarle a otros — acá encontrás con quién trabajar. Eso es exactamente lo que hacemos: conectar personas para que nadie tenga que resolver nada solo.
+      </p>
     </div>
+
   </div>
 </section>
 
 <script>
-  // Cursor parpadeante del terminal (se mantiene independiente de GSAP)
-  const cursor = document.querySelector('.terminal__cursor');
-  if (cursor) {
-    setInterval(() => cursor.classList.toggle('invisible'), 600);
-  }
-</script>
-
-<script>
-  // ---- GSAP: reemplaza el IntersectionObserver personalizado ----
   import { gsap, ScrollTrigger, withMotion } from '../../lib/gsap';
 
+  function typeWriter(element: HTMLElement, text: string, speed: number): Promise<void> {
+    return new Promise(resolve => {
+      let i = 0;
+      element.textContent = '';
+      function type() {
+        if (i < text.length) {
+          element.textContent += text.charAt(i);
+          i++;
+          setTimeout(type, speed);
+        } else {
+          resolve();
+        }
+      }
+      type();
+    });
+  }
+
   withMotion(() => {
-    // Estados iniciales
-    gsap.set('.sobre__terminal', { autoAlpha: 0, y: 35 });
-    gsap.set('.terminal-line',   { autoAlpha: 0, x: -10 });
-    gsap.set('.stat-block',      { autoAlpha: 0, x: 35 });
+    gsap.set('.sobre__terminal-wrapper', { autoAlpha: 0, scale: 0.95, y: 30 });
+    gsap.set('.sobre__lead',  { autoAlpha: 0, x: 40 });
+    gsap.set('.sobre__body',  { autoAlpha: 0, x: 40 });
 
     ScrollTrigger.create({
-      trigger: '.sobre__terminal',
+      trigger: '.sobre-nosotros',
       start: 'top 75%',
       once: true,
-      onEnter: () => {
+      onEnter: async () => {
         const tl = gsap.timeline();
+        tl.to('.sobre__terminal-wrapper', { autoAlpha: 1, scale: 1, y: 0, duration: 0.8, ease: 'power3.out' })
+          .to('.sobre__lead', { autoAlpha: 1, x: 0, duration: 0.6, ease: 'back.out(1.2)' }, '-=0.4')
+          .to('.sobre__body', { autoAlpha: 1, x: 0, stagger: 0.18, duration: 0.6, ease: 'power2.out' }, '-=0.3');
 
-        // Ventana terminal sube y aparece
-        tl.to('.sobre__terminal', { autoAlpha: 1, y: 0, duration: 0.5 })
-          // Líneas del terminal en stagger (como salida de comandos en terminal)
-          .to('.terminal-line', {
-            autoAlpha: 1,
-            x: 0,
-            stagger: 0.14,
-            duration: 0.3,
-            ease: 'power1.out',
-          }, '-=0.15')
-          // Stats entran desde la derecha
-          .to('.stat-block', {
-            autoAlpha: 1,
-            x: 0,
-            stagger: 0.13,
-            duration: 0.5,
-          }, '-=0.35');
-      },
+        // Typewriter de la terminal
+        const lines = document.querySelectorAll<HTMLElement>('.typing-line');
+        const outputs = document.querySelectorAll<HTMLElement>('.terminal__output');
+        const finalPrompt = document.querySelector<HTMLElement>('.terminal-final-prompt');
+
+        await new Promise(r => setTimeout(r, 600));
+
+        for (let i = 0; i < lines.length; i++) {
+          const cmdSpan = lines[i].querySelector<HTMLElement>('.terminal__cmd');
+          if (!cmdSpan) continue;
+          const text = cmdSpan.getAttribute('data-text') ?? '';
+
+          lines[i].style.display = 'block';
+          await typeWriter(cmdSpan, text, 40);
+          await new Promise(r => setTimeout(r, 200));
+
+          if (outputs[i]) {
+            outputs[i].style.display = 'block';
+            gsap.fromTo(outputs[i], { opacity: 0, y: -5 }, { opacity: 1, y: 0, duration: 0.3 });
+          }
+
+          await new Promise(r => setTimeout(r, 500));
+        }
+
+        if (finalPrompt) finalPrompt.style.display = 'block';
+      }
     });
   });
+
+  // Cursor parpadeante
+  const cursor = document.querySelector('.terminal__cursor');
+  if (cursor) setInterval(() => cursor.classList.toggle('invisible'), 500);
 </script>
 
 <style>
   .sobre-nosotros {
     position: relative;
     z-index: 10;
+    padding: 6rem 0;
   }
 
+  /* ---- Fondo ---- */
+  .bg-glow {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.25;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .bg-glow--1 { top: 10%; left: -10%; background: var(--primary); }
+  .bg-glow--2 { bottom: -10%; right: 10%; background: var(--videojuegos); }
+
+  /* ---- Layout ---- */
   .sobre__inner {
     display: grid;
-    grid-template-columns: 3fr 2fr;
-    gap: 3rem;
-    align-items: start;
+    grid-template-columns: 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+
+  @media (min-width: 992px) {
+    .sobre__inner {
+      grid-template-columns: 1.2fr 1fr;
+    }
   }
 
   /* ---- Terminal ---- */
-  .sobre__terminal {
+  .sobre__terminal-wrapper {
+    position: relative;
     width: 100%;
   }
 
+  .terminal-glow {
+    position: absolute;
+    inset: -10px;
+    background: linear-gradient(45deg, var(--primary), var(--ciberseguridad));
+    filter: blur(25px);
+    opacity: 0.3;
+    border-radius: 16px;
+    z-index: 0;
+    transition: opacity 0.3s;
+  }
+
+  .sobre__terminal-wrapper:hover .terminal-glow { opacity: 0.5; }
+
+  .modern-terminal {
+    background: var(--bg-terminal);
+    /* Hereda el border pixel art de .pixel-window (global.css) */
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  /* Bar, dots y title heredan el estilo pixel art de global.css */
+
   .terminal__body {
     font-family: var(--font-mono);
-    font-size: 0.82rem;
-    line-height: 1.8;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    padding: 1.5rem;
   }
 
-  /* Estado inicial de las líneas — GSAP animará desde aquí */
-  .terminal__body .terminal-line {
-    opacity: 0;
-    transform: translateX(-8px);
-    transition: none;
-  }
-
-  /* .terminal--active ya no se usa (era del IntersectionObserver anterior) */
-
-  .terminal__prompt {
-    color: var(--primary);
-    font-weight: 700;
-    user-select: none;
-  }
-
-  .terminal__cmd {
-    color: #22c55e;
-  }
+  .terminal__prompt { color: var(--primary); font-weight: 700; user-select: none; }
+  .terminal__cmd { color: #22c55e; }
 
   .terminal__output {
-    color: var(--text-muted);
-    padding-left: 1rem;
-    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.7);
+    padding-left: 1.2rem;
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
   }
 
-  .terminal__spacer {
-    height: 0.5rem;
-  }
+  .terminal__spacer { height: 1rem; }
 
-  .terminal__cursor {
-    color: var(--primary);
-  }
+  .terminal__cursor { color: var(--primary); display: inline-block; width: 8px; }
+  .terminal__cursor.invisible { opacity: 0; }
 
-  .terminal__cursor.invisible {
-    opacity: 0;
-  }
-
-  /* ---- Stats ---- */
-  .sobre__stats {
+  /* ---- Contenido derecha ---- */
+  .sobre__content {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1.25rem;
   }
 
   .sobre__title {
-    font-family: var(--font-pixel);
-    font-size: clamp(0.7rem, 2vw, 1rem);
+    font-family: var(--font-pixel, monospace);
+    font-size: clamp(1.1rem, 3vw, 1.9rem);
     color: var(--text);
-    line-height: 1.5;
-    margin-bottom: 1rem;
+    margin-top: 0.25rem;
+    line-height: 1.4;
   }
 
-  .stats__list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+  .gradient-text {
+    background: linear-gradient(to right, var(--primary), #a855f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
   }
 
-  .stat-block {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--primary);
-    padding: 1rem 1.25rem;
-    transition: border-color 0.2s, background 0.2s;
-  }
-
-  .stat-block:hover {
-    background: var(--bg-card-hover);
-    border-left-color: var(--primary);
-  }
-
-  .stat-block__number {
-    font-family: var(--font-pixel);
-    font-size: 1.8rem;
-    line-height: 1;
-    margin-bottom: 0.25rem;
-  }
-
-  .stat-block__label {
-    font-family: var(--font-pixel);
-    font-size: 0.5rem;
-    color: var(--text);
-    margin-bottom: 0.4rem;
-    text-transform: uppercase;
-  }
-
-  .stat-block__desc {
+  /* Frase impactante */
+  .sobre__lead {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--text-muted);
+    font-size: 1.05rem;
+    color: var(--text);
+    line-height: 1.7;
+    border-left: 3px solid var(--primary);
+    padding-left: 1rem;
+    margin-top: 0.5rem;
   }
 
-  /* ---- Responsive ---- */
-  @media (max-width: 768px) {
-    .sobre__inner {
-      grid-template-columns: 1fr;
-    }
+  /* Párrafos de explicación */
+  .sobre__body {
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    line-height: 1.85;
   }
 </style>

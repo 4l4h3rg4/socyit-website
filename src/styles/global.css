@@ -4,7 +4,15 @@
    ============================================ */
 
 @import 'nes.css/css/nes.min.css';
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+/* Space Mono eliminada — sitio usa Minecraft globalmente */
+
+@font-face {
+  font-family: 'Minecraft';
+  src: url('/Minecraft.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 @import './animations.css';
 
 /* ---- VARIABLES ---- */
@@ -46,8 +54,8 @@
   --section-gap:     6rem;
 
   /* Tipografías */
-  --font-pixel:      'Press Start 2P', monospace;
-  --font-mono:       'Space Mono', monospace;
+  --font-pixel:      'Minecraft', monospace;
+  --font-mono:       'Minecraft', monospace;
 }
 
 /* ---- RESET ---- */
@@ -65,7 +73,7 @@ html {
 body {
   background-color: var(--bg);
   color: var(--text);
-  font-family: var(--font-mono);
+  font-family: 'Minecraft', monospace;
   line-height: 1.7;
   overflow-x: hidden;
   min-height: 100vh;
@@ -233,43 +241,49 @@ section {
   box-shadow: 2px 2px 0 0 #075E54;
 }
 
-/* ---- VENTANA TERMINAL ---- */
+/* ---- VENTANA TERMINAL (pixel art) ---- */
 .pixel-window {
   background: var(--bg-terminal);
-  border: 2px solid var(--border-bright);
-  max-width: 768px;
-  margin-inline: auto;
+  /* Borde pixel art: grueso + sombra sólida sin blur */
+  border: 3px solid var(--primary);
+  box-shadow:
+    0 0 0 1px #000,         /* borde oscuro exterior */
+    5px 5px 0 1px #000;     /* sombra pixel (sin blur) */
+  position: relative;
 }
 
 .pixel-window__bar {
-  background: var(--border-bright);
-  padding: 0.5rem 0.75rem;
+  background: var(--primary);
+  padding: 6px 10px;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  border-bottom: 2px solid var(--border);
+  gap: 8px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.5);
 }
 
 .pixel-window__dots {
   display: flex;
-  gap: 6px;
+  gap: 5px;
 }
 
+/* Dots cuadrados — estilo pixel art */
 .pixel-window__dot {
   width: 10px;
   height: 10px;
   border-radius: 0;
+  border: 1px solid rgba(0, 0, 0, 0.4);
 }
 
-.pixel-window__dot--red   { background: #ef4444; }
+.pixel-window__dot--red    { background: #ef4444; }
 .pixel-window__dot--yellow { background: #f59e0b; }
-.pixel-window__dot--green { background: #22c55e; }
+.pixel-window__dot--green  { background: #22c55e; }
 
 .pixel-window__title {
   font-family: var(--font-pixel);
   font-size: 0.5rem;
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.9);
   margin-left: 0.5rem;
+  letter-spacing: 0.05em;
 }
 
 .pixel-window__body {
