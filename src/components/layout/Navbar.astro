@@ -46,7 +46,11 @@ import { Icon } from 'astro-icon/components';
 
   <!-- MOBILE: botón hamburguesa + menú desplegable -->
   <button class="navbar__hamburger" id="hamburgerBtn" aria-label="Abrir menú" aria-expanded="false">
-    <span></span><span></span><span></span>
+    <div class="navbar__hamburger-icons">
+      <Icon name="lucide:menu" class="icon-menu" />
+      <Icon name="lucide:x" class="icon-close" />
+    </div>
+    <span class="navbar__hamburger-text" id="hamburgerText">Menú</span>
   </button>
 
   <div class="navbar__mobile-menu" id="mobileMenu" aria-hidden="true">
@@ -113,15 +117,19 @@ import { Icon } from 'astro-icon/components';
   hamburgerBtn.addEventListener('click', () => {
     const isOpen = mobileMenu.classList.contains('open');
     mobileMenu.classList.toggle('open', !isOpen);
+    hamburgerBtn.classList.toggle('active', !isOpen);
     hamburgerBtn.setAttribute('aria-expanded', String(!isOpen));
     mobileMenu.setAttribute('aria-hidden', String(isOpen));
+    document.getElementById('hamburgerText')!.innerText = isOpen ? 'Menú' : 'Cerrar';
   });
 
   // Cierra el menú mobile desde los links
   (window as any).closeMenu = () => {
     mobileMenu.classList.remove('open');
+    hamburgerBtn.classList.remove('active');
     hamburgerBtn.setAttribute('aria-expanded', 'false');
     mobileMenu.setAttribute('aria-hidden', 'true');
+    document.getElementById('hamburgerText')!.innerText = 'Menú';
   };
 
   // ---- Active link highlight (solo en landing) ----
@@ -155,6 +163,9 @@ import { Icon } from 'astro-icon/components';
     transform: translateX(-50%);
     z-index: 100;
     transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease, bottom 0.35s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .navbar.hidden {
@@ -227,83 +238,135 @@ import { Icon } from 'astro-icon/components';
   /* ---- HAMBURGUESA (mobile) ---- */
   .navbar__hamburger {
     display: none;
-    flex-direction: column;
-    gap: 5px;
-    background: rgba(8, 8, 15, 0.95);
-    border: 1px solid var(--border-bright);
-    padding: 0.75rem;
+    flex-direction: row;
+    gap: 8px;
+    background: rgba(8, 8, 15, 0.85);
+    border: 1px solid var(--border-bright, rgba(255,255,255,0.1));
+    padding: 0.6rem 1.5rem;
+    border-radius: 9999px;
     cursor: pointer;
-    position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
+    position: relative;
     z-index: 101;
-    /* touch target */
-    min-width: 44px;
-    min-height: 44px;
+    min-height: 48px;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 0 0 1px rgba(99,102,241,0.15);
+    backdrop-filter: blur(16px);
+    transition: all 0.3s ease;
   }
 
-  .navbar__hamburger span {
-    display: block;
-    width: 22px;
-    height: 2px;
-    background: var(--primary);
-    transition: transform 0.3s, opacity 0.3s;
+  .navbar__hamburger:active {
+    transform: scale(0.95);
+  }
+
+  .navbar__hamburger-icons {
+    position: relative;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+  }
+  
+  .navbar__hamburger-icons svg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+  }
+  
+  .icon-close {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.5);
+  }
+  
+  .navbar__hamburger.active .icon-menu {
+    opacity: 0;
+    transform: rotate(90deg) scale(0.5);
+  }
+  
+  .navbar__hamburger.active .icon-close {
+    opacity: 1;
+    transform: rotate(0deg) scale(1);
+  }
+
+  .navbar__hamburger-text {
+    font-family: var(--font-pixel);
+    font-size: 0.55rem;
+    color: var(--text, #fff);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding-top: 2px;
   }
 
   .navbar__mobile-menu {
-    display: none;
-    position: fixed;
-    bottom: 5rem;
-    right: 1.5rem;
-    background: rgba(8, 8, 15, 0.97);
-    border: 1px solid var(--border-bright);
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    bottom: 100%;
+    margin-bottom: 1.2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px) scale(0.95);
+    pointer-events: none;
+    opacity: 0;
+    background: rgba(12, 12, 20, 0.95);
+    border: 1px solid var(--border-bright, rgba(255,255,255,0.1));
     backdrop-filter: blur(16px);
     z-index: 100;
-    min-width: 190px;
+    width: 85vw;
+    max-width: 340px;
+    border-radius: 16px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.8), 0 0 0 1px rgba(99,102,241,0.2);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: bottom center;
   }
 
   .navbar__mobile-menu.open {
-    display: block;
+    transform: translateX(-50%) translateY(0) scale(1);
+    pointer-events: auto;
+    opacity: 1;
   }
 
   .navbar__mobile-menu ul {
     list-style: none;
-    padding: 0.5rem 0;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin: 0;
   }
 
   .navbar__mobile-item {
     display: flex;
     align-items: center;
-    gap: 0.65rem;
+    gap: 1rem;
     padding: 0.85rem 1.25rem;
-    /* touch target: mínimo 44px */
-    min-height: 44px;
+    min-height: 48px;
     font-family: var(--font-pixel);
-    font-size: 0.61rem;
+    font-size: 0.65rem;
     color: var(--text-muted);
     text-decoration: none;
-    transition: color 0.2s, background 0.2s;
-    border-bottom: 1px solid var(--border);
+    transition: all 0.2s;
+    border-radius: 10px;
   }
 
-  .navbar__mobile-item:last-child {
-    border-bottom: none;
-  }
-
-  .navbar__mobile-item:hover {
+  .navbar__mobile-item:hover, .navbar__mobile-item:active {
     color: var(--primary);
     background: var(--primary-glow-sm);
+    transform: translateX(5px);
   }
 
   .navbar__mobile-item--cta {
     color: var(--primary);
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    margin-top: 0.25rem;
   }
 
   .navbar__mobile-icon {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
     flex-shrink: 0;
     color: inherit;
   }
