@@ -39,18 +39,14 @@ export function createAuthClient(context: CookieContext) {
 }
 
 /**
- * Cliente admin — usa SERVICE_ROLE_KEY, bypasea RLS.
- * Úsalo SOLO tras haber verificado la sesión con createAuthClient().
- * Úsalo para: leer datos protegidos (ej: lista de suscriptores con emails).
- *
- * IMPORTANTE: para INSERT/UPDATE/DELETE usa createAuthClient() con la sesión
- * del usuario, NO este cliente, para que los triggers de auditoría capturen
- * el auth.uid() correctamente.
+ * Cliente admin — usa ANON_KEY + sesión del usuario autenticado.
+ * Las políticas RLS permiten al rol admin hacer todo.
+ * Úsalo para: leer y escribir datos desde páginas del panel admin.
  */
 export function createAdminClient(context: CookieContext) {
   return createServerClient(
     import.meta.env.SUPABASE_URL,
-    import.meta.env.SUPABASE_SERVICE_ROLE_KEY,
+    import.meta.env.SUPABASE_ANON_KEY,
     { cookies: cookieHandlers(context) }
   );
 }
