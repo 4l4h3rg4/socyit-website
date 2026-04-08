@@ -1,0 +1,95 @@
+---
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import { createAdminClient } from '../../../../lib/supabase';
+
+const { id } = Astro.params;
+const supabase = createAdminClient(Astro);
+
+const [{ data: proyecto }, { data: divisiones }] = await Promise.all([
+  supabase.from('proyectos').select('*').eq('id', id).single(),
+  supabase.from('divisiones').select('id, nombre').order('orden'),
+]);
+
+if (!proyecto) return Astro.redirect('/dashboard/proyectos');
+---
+
+<AdminLayout title={`Editar: ${proyecto.nombre}`} activePage="proyectos">
+  <div class="admin-topbar">
+    <h1>Editar Proyecto</h1>
+    <a href="/dashboard/proyectos" class="btn btn--ghost">[ Volver ]</a>
+  </div>
+
+  <form class="admin-form" id="form-edit">
+    <div class="admin-form__group">
+      <label class="admin-form__label" for="division_id">División *</label>
+      <div class="nes-select">
+        <select id="division_id" name="division_id" required>
+          {divisiones?.map(d => (
+            <option value={d.id} selected={d.id === proyecto.division_id}>{d.nombre}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+
+    <div class="admin-form__group">
+      <label class="admin-form__label" for="nombre">Nombre *</label>
+      <input id="nombre" name="nombre" type="text" class="nes-input" required value={proyecto.nombre} />
+    </div>
+
+    <div class="admin-form__group">
+      <label class="admin-form__label" for="descripcion">Descripción</label>
+      <textarea id="descripcion" name="descripcion" class="nes-textarea" rows="3">{proyecto.descripcion ?? ''}</textarea>
+    </div>
+
+    <div class="admin-form__group">
+      <label class="admin-form__label" for="estado">Estado *</label>
+      <div class="nes-select">
+        <select id="estado" name="estado" required>
+          {['idea', 'en_progreso', 'completado'].map(s => (
+            <option value={s} selected={s === proyecto.estado}>{s}</option>
+          ))}
+        </select>
+      </div>
+    </div>
+
+    <div class="admin-form__group">
+      <label class="admin-form__label" for="link">Link</label>
+      <input id="link" name="link" type="url" class="nes-input" value={proyecto.link ?? ''} />
+    </div>
+
+    <p id="form-error" style="display:none; font-family:var(--font-pixel); font-size:0.6rem; color:var(--danger);"></p>
+
+    <div class="admin-form__actions">
+      <button type="submit" class="btn btn--primary">[ Guardar Cambios ]</button>
+      <a href={`/dashboard/proyectos/${proyecto.id}/eliminar`} class="btn btn--danger">Eliminar</a>
+      <a href="/dashboard/proyectos" class="btn btn--ghost">Cancelar</a>
+    </div>
+  </form>
+
+  <script define:vars={{ proyectoId: proyecto.id }}>
+    document.getElementById('form-edit')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const errEl = document.getElementById('form-error');
+      errEl.style.display = 'none';
+
+      const data = new FormData(form);
+      const body = {};
+      for (const [k, v] of data.entries()) { body[k] = v || null; }
+
+      const res = await fetch(`/api/proyectos/${proyectoId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        window.location.href = '/dashboard/proyectos';
+      } else {
+        const json = await res.json().catch(() => ({}));
+        errEl.textContent = json.error ?? 'Error al guardar.';
+        errEl.style.display = 'block';
+      }
+    });
+  </script>
+</AdminLayout>

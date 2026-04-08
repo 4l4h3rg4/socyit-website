@@ -1,27 +1,15 @@
 {
-  "name": "socyit-website",
+  "name": "socyit-monorepo",
+  "private": true,
   "type": "module",
-  "version": "0.0.1",
   "engines": {
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
-  "dependencies": {
-    "@astrojs/vercel": "^10.0.3",
-    "@iconify-json/lucide": "^1.2.100",
-    "@supabase/supabase-js": "^2.100.1",
-    "@tsparticles/engine": "^3.9.1",
-    "@tsparticles/slim": "^3.9.1",
-    "astro": "^6.1.1",
-    "astro-icon": "^1.1.5",
-    "gsap": "^3.14.2",
-    "nes.css": "^2.2.1",
-    "tsparticles": "^3.9.1"
+    "dev:web": "pnpm --filter web dev",
+    "dev:admin": "pnpm --filter admin dev",
+    "build:web": "pnpm --filter web build",
+    "build:admin": "pnpm --filter admin build"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

@@ -1,0 +1,51 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { createAdminClient } from '../../../lib/supabase';
+
+const supabase = createAdminClient(Astro);
+const { data: divisiones } = await supabase
+  .from('divisiones')
+  .select('id, nombre, slug, activa, orden')
+  .order('orden');
+---
+
+<AdminLayout title="Divisiones" activePage="divisiones">
+  <div class="admin-topbar">
+    <h1>Divisiones</h1>
+    <a href="/dashboard/divisiones/nueva" class="btn btn--primary">[ + Nueva ]</a>
+  </div>
+
+  <div class="nes-container">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nombre</th>
+          <th>Slug</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {divisiones?.map(div => (
+          <tr>
+            <td style="color:var(--text-dim);">{div.orden}</td>
+            <td>{div.nombre}</td>
+            <td style="color:var(--text-muted); font-size:0.75rem;">{div.slug}</td>
+            <td>
+              <span class={`status-badge ${div.activa ? 'status-badge--active' : 'status-badge--inactive'}`}>
+                {div.activa ? 'Activa' : 'Inactiva'}
+              </span>
+            </td>
+            <td>
+              <div style="display:flex; gap:0.5rem;">
+                <a href={`/dashboard/divisiones/${div.id}`} class="btn btn--ghost">Editar</a>
+                <a href={`/dashboard/divisiones/${div.id}/eliminar`} class="btn btn--danger">Borrar</a>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</AdminLayout>

@@ -1,0 +1,47 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { createAdminClient } from '../../../lib/supabase';
+
+const supabase = createAdminClient(Astro);
+const { data: lideres } = await supabase
+  .from('lideres')
+  .select('id, nombre, rol, division_id, divisiones(nombre)')
+  .order('nombre');
+---
+
+<AdminLayout title="Líderes" activePage="lideres">
+  <div class="admin-topbar">
+    <h1>Líderes</h1>
+    <a href="/dashboard/lideres/nuevo" class="btn btn--primary">[ + Nuevo ]</a>
+  </div>
+
+  <div class="nes-container">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Rol</th>
+          <th>División</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {lideres?.map(lider => (
+          <tr>
+            <td>{lider.nombre}</td>
+            <td style="color:var(--text-muted); font-size:0.75rem;">{lider.rol}</td>
+            <td style="color:var(--text-dim); font-size:0.75rem;">
+              {(lider.divisiones as any)?.nombre ?? '—'}
+            </td>
+            <td>
+              <div style="display:flex; gap:0.5rem;">
+                <a href={`/dashboard/lideres/${lider.id}`} class="btn btn--ghost">Editar</a>
+                <a href={`/dashboard/lideres/${lider.id}/eliminar`} class="btn btn--danger">Borrar</a>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</AdminLayout>

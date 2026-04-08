@@ -1,0 +1,109 @@
+---
+import '../styles/global.css';
+
+const reason = Astro.url.searchParams.get('reason');
+const error  = Astro.url.searchParams.get('error');
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Login — SocyIT Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem;">
+      <div style="width:100%; max-width:420px;">
+
+        <div style="text-align:center; margin-bottom:2rem;">
+          <h1 style="font-size:1rem; color:var(--primary); margin-bottom:0.5rem;">SocyIT</h1>
+          <p style="font-family:var(--font-pixel); font-size:0.6rem; color:var(--text-muted);">
+            Admin Panel
+          </p>
+        </div>
+
+        {reason === 'forbidden' && (
+          <div class="flash flash--error">
+            Acceso denegado. No tienes permisos de admin.
+          </div>
+        )}
+        {error && (
+          <div class="flash flash--error">{error}</div>
+        )}
+
+        <div class="nes-container with-title">
+          <p class="title">Identificación</p>
+
+          <form id="login-form" style="display:flex; flex-direction:column; gap:1.25rem;">
+            <div class="admin-form__group">
+              <label class="admin-form__label" for="email">Email</label>
+              <input
+                id="email"
+                type="email"
+                name="email"
+                class="nes-input"
+                required
+                autocomplete="email"
+              />
+            </div>
+
+            <div class="admin-form__group">
+              <label class="admin-form__label" for="password">Contraseña</label>
+              <input
+                id="password"
+                type="password"
+                name="password"
+                class="nes-input"
+                required
+                autocomplete="current-password"
+              />
+            </div>
+
+            <button type="submit" class="btn btn--primary" style="width:100%;">
+              [ Entrar ]
+            </button>
+
+            <p id="form-error" style="display:none; font-family:var(--font-pixel); font-size:0.6rem; color:var(--danger);"></p>
+          </form>
+        </div>
+
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById('login-form') as HTMLFormElement;
+      const errEl = document.getElementById('form-error') as HTMLParagraphElement;
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errEl.style.display = 'none';
+
+        const data = new FormData(form);
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: data.get('email'),
+            password: data.get('password'),
+          }),
+        });
+
+        if (res.ok) {
+          window.location.href = '/dashboard';
+        } else {
+          const json = await res.json().catch(() => ({}));
+          errEl.textContent = json.error ?? 'Error al iniciar sesión.';
+          errEl.style.display = 'block';
+        }
+      });
+    </script>
+  </body>
+</html>

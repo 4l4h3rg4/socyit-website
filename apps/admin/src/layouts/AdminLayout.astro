@@ -1,0 +1,74 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  activePage?: string;
+}
+
+const { title, activePage = '' } = Astro.props;
+const adminEmail = Astro.locals.adminEmail ?? '';
+
+const navLinks = [
+  { href: '/dashboard',                 label: '> Dashboard',    key: 'dashboard' },
+  { href: '/dashboard/divisiones',      label: '> Divisiones',   key: 'divisiones' },
+  { href: '/dashboard/lideres',         label: '> Líderes',      key: 'lideres' },
+  { href: '/dashboard/proyectos',       label: '> Proyectos',    key: 'proyectos' },
+  { href: '/dashboard/suscriptores',    label: '> Suscriptores', key: 'suscriptores' },
+  { href: '/dashboard/audit',           label: '> Audit Log',    key: 'audit' },
+];
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} — SocyIT Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="admin-layout">
+
+      <!-- SIDEBAR -->
+      <aside class="admin-sidebar">
+        <div class="admin-sidebar__logo">
+          SocyIT
+          <span>Admin Panel</span>
+        </div>
+
+        <nav>
+          {navLinks.map(link => (
+            <a
+              href={link.href}
+              class={`admin-nav__link ${activePage === link.key ? 'active' : ''}`}
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+
+        <div class="admin-sidebar__footer">
+          <span class="admin-sidebar__email" title={adminEmail}>{adminEmail}</span>
+          <form action="/api/auth/logout" method="POST">
+            <button type="submit" class="btn btn--ghost" style="width:100%; font-size:0.55rem;">
+              [ Cerrar sesión ]
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      <!-- CONTENIDO PRINCIPAL -->
+      <main class="admin-main">
+        <slot />
+      </main>
+
+    </div>
+  </body>
+</html>

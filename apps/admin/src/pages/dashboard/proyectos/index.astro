@@ -1,0 +1,55 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { createAdminClient } from '../../../lib/supabase';
+
+const supabase = createAdminClient(Astro);
+const { data: proyectos } = await supabase
+  .from('proyectos')
+  .select('id, nombre, estado, division_id, divisiones(nombre)')
+  .order('nombre');
+
+const estadoClass: Record<string, string> = {
+  idea:        'status-badge--idea',
+  en_progreso: 'status-badge--progress',
+  completado:  'status-badge--done',
+};
+---
+
+<AdminLayout title="Proyectos" activePage="proyectos">
+  <div class="admin-topbar">
+    <h1>Proyectos</h1>
+    <a href="/dashboard/proyectos/nuevo" class="btn btn--primary">[ + Nuevo ]</a>
+  </div>
+
+  <div class="nes-container">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Estado</th>
+          <th>División</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {proyectos?.map(p => (
+          <tr>
+            <td>{p.nombre}</td>
+            <td>
+              <span class={`status-badge ${estadoClass[p.estado] ?? ''}`}>{p.estado}</span>
+            </td>
+            <td style="color:var(--text-dim); font-size:0.75rem;">
+              {(p.divisiones as any)?.nombre ?? '—'}
+            </td>
+            <td>
+              <div style="display:flex; gap:0.5rem;">
+                <a href={`/dashboard/proyectos/${p.id}`} class="btn btn--ghost">Editar</a>
+                <a href={`/dashboard/proyectos/${p.id}/eliminar`} class="btn btn--danger">Borrar</a>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</AdminLayout>

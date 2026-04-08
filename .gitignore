@@ -16,8 +16,10 @@ pnpm-debug.log*
 build-error.log
 build-error.txt
 
-# environment variables
+# environment variables — NUNCA commitear
 .env
+.env.local
+.env.*.local
 .env.production
 
 # macOS-specific files

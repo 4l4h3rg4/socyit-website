@@ -1,0 +1,51 @@
+---
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import { createAdminClient } from '../../../../lib/supabase';
+
+const { id } = Astro.params;
+const supabase = createAdminClient(Astro);
+
+const { data: div } = await supabase
+  .from('divisiones')
+  .select('id, nombre')
+  .eq('id', id)
+  .single();
+
+if (!div) return Astro.redirect('/dashboard/divisiones');
+---
+
+<AdminLayout title={`Eliminar: ${div.nombre}`} activePage="divisiones">
+  <div class="admin-topbar">
+    <h1>Eliminar División</h1>
+    <a href="/dashboard/divisiones" class="btn btn--ghost">[ Volver ]</a>
+  </div>
+
+  <div class="nes-container with-title" style="max-width:500px;">
+    <p class="title">Confirmar eliminación</p>
+    <p style="margin-bottom:1.5rem; font-size:0.875rem; color:var(--text-muted);">
+      ¿Estás seguro de que quieres eliminar la división
+      <strong style="color:var(--text);">{div.nombre}</strong>?
+      Esta acción no se puede deshacer y eliminará todos los líderes y proyectos asociados.
+    </p>
+    <div style="display:flex; gap:0.75rem;">
+      <button id="btn-confirmar" class="btn btn--danger">[ Sí, eliminar ]</button>
+      <a href="/dashboard/divisiones" class="btn btn--ghost">Cancelar</a>
+    </div>
+    <p id="error" style="display:none; margin-top:1rem; font-family:var(--font-pixel); font-size:0.6rem; color:var(--danger);"></p>
+  </div>
+
+  <script define:vars={{ divId: div.id }}>
+    document.getElementById('btn-confirmar')?.addEventListener('click', async () => {
+      const errEl = document.getElementById('error');
+      const res = await fetch(`/api/divisiones/${divId}`, { method: 'DELETE' });
+
+      if (res.ok) {
+        window.location.href = '/dashboard/divisiones';
+      } else {
+        const json = await res.json().catch(() => ({}));
+        errEl.textContent = json.error ?? 'Error al eliminar.';
+        errEl.style.display = 'block';
+      }
+    });
+  </script>
+</AdminLayout>

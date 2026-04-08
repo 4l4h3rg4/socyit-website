@@ -1,0 +1,42 @@
+---
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import { createAdminClient } from '../../../../lib/supabase';
+
+const { id } = Astro.params;
+const supabase = createAdminClient(Astro);
+const { data: proyecto } = await supabase.from('proyectos').select('id, nombre').eq('id', id).single();
+if (!proyecto) return Astro.redirect('/dashboard/proyectos');
+---
+
+<AdminLayout title={`Eliminar: ${proyecto.nombre}`} activePage="proyectos">
+  <div class="admin-topbar">
+    <h1>Eliminar Proyecto</h1>
+    <a href="/dashboard/proyectos" class="btn btn--ghost">[ Volver ]</a>
+  </div>
+
+  <div class="nes-container with-title" style="max-width:500px;">
+    <p class="title">Confirmar eliminación</p>
+    <p style="margin-bottom:1.5rem; font-size:0.875rem; color:var(--text-muted);">
+      ¿Eliminar el proyecto <strong style="color:var(--text);">{proyecto.nombre}</strong>?
+    </p>
+    <div style="display:flex; gap:0.75rem;">
+      <button id="btn-confirmar" class="btn btn--danger">[ Sí, eliminar ]</button>
+      <a href="/dashboard/proyectos" class="btn btn--ghost">Cancelar</a>
+    </div>
+    <p id="error" style="display:none; margin-top:1rem; font-family:var(--font-pixel); font-size:0.6rem; color:var(--danger);"></p>
+  </div>
+
+  <script define:vars={{ proyectoId: proyecto.id }}>
+    document.getElementById('btn-confirmar')?.addEventListener('click', async () => {
+      const errEl = document.getElementById('error');
+      const res = await fetch(`/api/proyectos/${proyectoId}`, { method: 'DELETE' });
+      if (res.ok) {
+        window.location.href = '/dashboard/proyectos';
+      } else {
+        const json = await res.json().catch(() => ({}));
+        errEl.textContent = json.error ?? 'Error al eliminar.';
+        errEl.style.display = 'block';
+      }
+    });
+  </script>
+</AdminLayout>

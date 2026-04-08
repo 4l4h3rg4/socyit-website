@@ -1,0 +1,88 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { createAdminClient } from '../../lib/supabase';
+
+const supabase = createAdminClient(Astro);
+
+// Conteos en paralelo
+const [
+  { count: totalDivisiones },
+  { count: totalLideres },
+  { count: totalProyectos },
+  { count: totalSuscriptores },
+  { data: recentAudit },
+] = await Promise.all([
+  supabase.from('divisiones').select('*', { count: 'exact', head: true }),
+  supabase.from('lideres').select('*', { count: 'exact', head: true }),
+  supabase.from('proyectos').select('*', { count: 'exact', head: true }),
+  supabase.from('suscriptores_eventos').select('*', { count: 'exact', head: true }),
+  supabase
+    .from('audit_log')
+    .select('action, table_name, user_email, created_at')
+    .order('created_at', { ascending: false })
+    .limit(10),
+]);
+---
+
+<AdminLayout title="Dashboard" activePage="dashboard">
+  <div class="admin-topbar">
+    <h1>Dashboard</h1>
+  </div>
+
+  <div class="admin-stats">
+    <div class="admin-stat">
+      <span class="admin-stat__label">Divisiones</span>
+      <span class="admin-stat__value">{totalDivisiones ?? 0}</span>
+    </div>
+    <div class="admin-stat">
+      <span class="admin-stat__label">Líderes</span>
+      <span class="admin-stat__value">{totalLideres ?? 0}</span>
+    </div>
+    <div class="admin-stat">
+      <span class="admin-stat__label">Proyectos</span>
+      <span class="admin-stat__value">{totalProyectos ?? 0}</span>
+    </div>
+    <div class="admin-stat">
+      <span class="admin-stat__label">Suscriptores</span>
+      <span class="admin-stat__value">{totalSuscriptores ?? 0}</span>
+    </div>
+  </div>
+
+  <div class="nes-container with-title">
+    <p class="title">Actividad reciente</p>
+    {recentAudit && recentAudit.length > 0 ? (
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Acción</th>
+            <th>Tabla</th>
+            <th>Usuario</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          {recentAudit.map(row => (
+            <tr>
+              <td>
+                <span class={`status-badge ${
+                  row.action === 'INSERT' ? 'status-badge--active' :
+                  row.action === 'UPDATE' ? 'status-badge--progress' :
+                  'status-badge--inactive'
+                }`}>{row.action}</span>
+              </td>
+              <td>{row.table_name}</td>
+              <td style="font-size:0.75rem; color:var(--text-muted);">{row.user_email}</td>
+              <td style="font-size:0.75rem; color:var(--text-dim);">
+                {new Date(row.created_at).toLocaleString('es-ES')}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    ) : (
+      <p style="font-family:var(--font-pixel); font-size:0.6rem; color:var(--text-dim);">
+        Sin actividad registrada aún.
+      </p>
+    )}
+  </div>
+</AdminLayout>

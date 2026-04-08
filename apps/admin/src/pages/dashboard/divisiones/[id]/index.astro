@@ -1,0 +1,144 @@
+---
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import { createAdminClient } from '../../../../lib/supabase';
+
+const { id } = Astro.params;
+const supabase = createAdminClient(Astro);
+
+const { data: div, error } = await supabase
+  .from('divisiones')
+  .select('*')
+  .eq('id', id)
+  .single();
+
+if (!div || error) {
+  return Astro.redirect('/dashboard/divisiones');
+}
+---
+
+<AdminLayout title={`Editar: ${div.nombre}`} activePage="divisiones">
+  <div class="admin-topbar">
+    <h1>Editar División</h1>
+    <a href="/dashboard/divisiones" class="btn btn--ghost">[ Volver ]</a>
+  </div>
+
+  <form class="admin-form" id="form-edit">
+    <div class="admin-form__group">
+      <label class="admin-form__label" for="nombre">Nombre *</label>
+      <input id="nombre" name="nombre" type="text" class="nes-input" required value={div.nombre} />
+    </div>
+
+    <div class="admin-form__group">
+      <label class="admin-form__label" for="slug">Slug *</label>
+      <input id="slug" name="slug" type="text" class="nes-input" required value={div.slug} />
+    </div>
+
+    <div class="admin-form__group">
+      <label class="admin-form__label" for="descripcion_corta">Descripción corta *</label>
+      <input id="descripcion_corta" name="descripcion_corta" type="text" class="nes-input"
+        required value={div.descripcion_corta} />
+    </div>
+
+    <div class="admin-form__group">
+      <label class="admin-form__label" for="descripcion_extendida">Descripción extendida</label>
+      <textarea id="descripcion_extendida" name="descripcion_extendida" class="nes-textarea" rows="4"
+        >{div.descripcion_extendida ?? ''}</textarea>
+    </div>
+
+    <div class="admin-form__group">
+      <label class="admin-form__label" for="sobre_division">Sobre la división</label>
+      <textarea id="sobre_division" name="sobre_division" class="nes-textarea" rows="3"
+        >{div.sobre_division ?? ''}</textarea>
+    </div>
+
+    <div class="admin-form__group">
+      <label class="admin-form__label" for="como_apoyamos">Cómo apoyamos</label>
+      <textarea id="como_apoyamos" name="como_apoyamos" class="nes-textarea" rows="3"
+        >{div.como_apoyamos ?? ''}</textarea>
+    </div>
+
+    <div class="admin-form__group">
+      <label class="admin-form__label" for="planes">Planes</label>
+      <textarea id="planes" name="planes" class="nes-textarea" rows="4"
+        >{(div.planes ?? []).join('\n')}</textarea>
+      <span class="admin-form__hint">Un plan por línea.</span>
+    </div>
+
+    <div class="admin-form__group">
+      <label class="admin-form__label" for="tags">Tags</label>
+      <input id="tags" name="tags" type="text" class="nes-input"
+        value={(div.tags ?? []).join(', ')} />
+      <span class="admin-form__hint">Separados por coma.</span>
+    </div>
+
+    <div class="admin-form__group">
+      <label class="admin-form__label" for="icono">Ícono</label>
+      <input id="icono" name="icono" type="text" class="nes-input" value={div.icono ?? ''} />
+    </div>
+
+    <div class="admin-form__group">
+      <label class="admin-form__label" for="color_hex">Color (hex) *</label>
+      <input id="color_hex" name="color_hex" type="text" class="nes-input"
+        required value={div.color_hex} />
+    </div>
+
+    <div class="admin-form__group">
+      <label class="admin-form__label" for="orden">Orden *</label>
+      <input id="orden" name="orden" type="number" class="nes-input"
+        required min="1" value={div.orden} />
+    </div>
+
+    <div class="admin-form__group" style="flex-direction:row; align-items:center; gap:0.75rem;">
+      <input id="activa" name="activa" type="checkbox" class="nes-checkbox"
+        checked={div.activa} />
+      <label class="admin-form__label" for="activa" style="margin:0;">Activa</label>
+    </div>
+
+    <p id="form-error" style="display:none; font-family:var(--font-pixel); font-size:0.6rem; color:var(--danger);"></p>
+
+    <div class="admin-form__actions">
+      <button type="submit" class="btn btn--primary">[ Guardar Cambios ]</button>
+      <a href={`/dashboard/divisiones/${div.id}/eliminar`} class="btn btn--danger">Eliminar</a>
+      <a href="/dashboard/divisiones" class="btn btn--ghost">Cancelar</a>
+    </div>
+  </form>
+
+  <script define:vars={{ divId: div.id }}>
+    document.getElementById('form-edit')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const errEl = document.getElementById('form-error');
+      errEl.style.display = 'none';
+
+      const data = new FormData(form);
+      const body = {
+        nombre:                data.get('nombre'),
+        slug:                  data.get('slug'),
+        descripcion_corta:     data.get('descripcion_corta'),
+        descripcion_extendida: data.get('descripcion_extendida'),
+        sobre_division:        data.get('sobre_division'),
+        como_apoyamos:         data.get('como_apoyamos'),
+        planes:   data.get('planes').split('\n').map(s => s.trim()).filter(Boolean),
+        tags:     data.get('tags').split(',').map(s => s.trim()).filter(Boolean),
+        icono:      data.get('icono'),
+        color_hex:  data.get('color_hex'),
+        orden:      Number(data.get('orden')),
+        activa:     form.querySelector('#activa').checked,
+      };
+
+      const res = await fetch(`/api/divisiones/${divId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      if (res.ok) {
+        window.location.href = '/dashboard/divisiones';
+      } else {
+        const json = await res.json().catch(() => ({}));
+        errEl.textContent = json.error ?? 'Error al guardar.';
+        errEl.style.display = 'block';
+      }
+    });
+  </script>
+</AdminLayout>

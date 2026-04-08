@@ -1,0 +1,44 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { createAdminClient } from '../../../lib/supabase';
+
+const supabase = createAdminClient(Astro);
+const { data: suscriptores } = await supabase
+  .from('suscriptores_eventos')
+  .select('id, email, suscrito_en')
+  .order('suscrito_en', { ascending: false });
+---
+
+<AdminLayout title="Suscriptores" activePage="suscriptores">
+  <div class="admin-topbar">
+    <h1>Suscriptores</h1>
+    <a href="/api/suscriptores/export" class="btn btn--ghost">[ Exportar CSV ]</a>
+  </div>
+
+  <div class="nes-container">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Fecha de suscripción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {suscriptores?.map(s => (
+          <tr>
+            <td>{s.email}</td>
+            <td style="color:var(--text-dim); font-size:0.75rem;">
+              {new Date(s.suscrito_en).toLocaleString('es-ES')}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    {(!suscriptores || suscriptores.length === 0) && (
+      <p style="font-family:var(--font-pixel); font-size:0.6rem; color:var(--text-dim); padding:1rem 0;">
+        Sin suscriptores todavía.
+      </p>
+    )}
+  </div>
+</AdminLayout>

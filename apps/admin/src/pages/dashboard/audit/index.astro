@@ -1,0 +1,101 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { createAdminClient } from '../../../lib/supabase';
+
+const page = Number(Astro.url.searchParams.get('page') ?? '1');
+const tabla = Astro.url.searchParams.get('tabla') ?? '';
+const limit = 25;
+const from  = (page - 1) * limit;
+
+const supabase = createAdminClient(Astro);
+let query = supabase
+  .from('audit_log')
+  .select('*', { count: 'exact' })
+  .order('created_at', { ascending: false })
+  .range(from, from + limit - 1);
+
+if (tabla) query = query.eq('table_name', tabla);
+
+const { data: logs, count } = await query;
+const totalPages = Math.ceil((count ?? 0) / limit);
+
+const actionClass: Record<string, string> = {
+  INSERT: 'status-badge--active',
+  UPDATE: 'status-badge--progress',
+  DELETE: 'status-badge--inactive',
+};
+---
+
+<AdminLayout title="Audit Log" activePage="audit">
+  <div class="admin-topbar">
+    <h1>Audit Log</h1>
+    <span style="font-family:var(--font-pixel); font-size:0.6rem; color:var(--text-muted);">
+      {count ?? 0} registros
+    </span>
+  </div>
+
+  <!-- Filtros -->
+  <form method="GET" style="display:flex; gap:0.75rem; margin-bottom:1.5rem; align-items:center;">
+    <div class="nes-select" style="min-width:160px;">
+      <select name="tabla" onchange="this.form.submit()">
+        <option value="">Todas las tablas</option>
+        {['divisiones', 'lideres', 'proyectos'].map(t => (
+          <option value={t} selected={t === tabla}>{t}</option>
+        ))}
+      </select>
+    </div>
+    {tabla && (
+      <a href="/dashboard/audit" class="btn btn--ghost" style="font-size:0.55rem;">× Limpiar filtro</a>
+    )}
+  </form>
+
+  <div class="nes-container">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Acción</th>
+          <th>Tabla</th>
+          <th>ID Registro</th>
+          <th>Usuario</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        {logs?.map(row => (
+          <tr>
+            <td>
+              <span class={`status-badge ${actionClass[row.action] ?? ''}`}>{row.action}</span>
+            </td>
+            <td>{row.table_name}</td>
+            <td style="font-size:0.7rem; color:var(--text-dim);">{row.record_id?.slice(0, 8)}…</td>
+            <td style="font-size:0.75rem; color:var(--text-muted);">{row.user_email}</td>
+            <td style="font-size:0.7rem; color:var(--text-dim);">
+              {new Date(row.created_at).toLocaleString('es-ES')}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    {(!logs || logs.length === 0) && (
+      <p style="font-family:var(--font-pixel); font-size:0.6rem; color:var(--text-dim); padding:1rem 0;">
+        Sin registros de auditoría.
+      </p>
+    )}
+  </div>
+
+  <!-- Paginación -->
+  {totalPages > 1 && (
+    <div style="display:flex; gap:0.5rem; margin-top:1.5rem; justify-content:center;">
+      {page > 1 && (
+        <a href={`?page=${page - 1}${tabla ? `&tabla=${tabla}` : ''}`} class="btn btn--ghost">← Anterior</a>
+      )}
+      <span style="font-family:var(--font-pixel); font-size:0.6rem; align-self:center; color:var(--text-muted);">
+        {page} / {totalPages}
+      </span>
+      {page < totalPages && (
+        <a href={`?page=${page + 1}${tabla ? `&tabla=${tabla}` : ''}`} class="btn btn--ghost">Siguiente →</a>
+      )}
+    </div>
+  )}
+</AdminLayout>
